@@ -7,26 +7,61 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <h1>Invoice Generator</h1>
-  
-  <div id="invoice-form">
-    <input type="text" id="clientName" placeholder="Client Name" required>
-    <table id="invoiceTable">
-      <thead>
-        <tr><th>Item</th><th>Qty</th><th>Price</th><th>Total</th></tr>
-      </thead>
-      <tbody id="invoiceItems"></tbody>
-    </table>
-    <button id="addItem">Add Item</button>
-    
-    <div id="total">
-      <strong>Grand Total: $<span id="grandTotal">0.00</span></strong>
+  <header>
+    <div class="branding">
+      <img src="https://via.placeholder.com/100x50?text=Logo" alt="Company Logo">
+      <div>
+        <h2>Your Company Name</h2>
+        <p>123 Business Road, City, Country</p>
+        <p>Email: info@company.com | +123 456 7890</p>
+      </div>
     </div>
+    <button id="themeToggle">🌙</button>
+  </header>
 
-    <button id="generatePDF">Download PDF</button>
-  </div>
+  <main>
+    <h1>Invoice Generator</h1>
+
+    <div id="invoice-form">
+      <input type="text" id="clientName" placeholder="Client Name" required>
+      <input type="text" id="invoiceNumber" placeholder="Invoice Number" required>
+      <input type="date" id="invoiceDate">
+
+      <table id="invoiceTable">
+        <thead>
+          <tr>
+            <th>Item</th>
+            <th>Qty</th>
+            <th>Price ($)</th>
+            <th>Total ($)</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="invoiceItems"></tbody>
+      </table>
+
+      <button id="addItem">➕ Add Item</button>
+
+      <div class="summary">
+        <label>Tax (%): <input type="number" id="taxRate" value="10"></label>
+        <div><strong>Subtotal:</strong> $<span id="subtotal">0.00</span></div>
+        <div><strong>Tax:</strong> $<span id="taxAmount">0.00</span></div>
+        <div><strong>Grand Total:</strong> $<span id="grandTotal">0.00</span></div>
+      </div>
+
+      <div class="actions">
+        <button id="saveInvoice">💾 Save</button>
+        <button id="generatePDF">📄 Download PDF</button>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <p>© 2025 Your Company Name. All rights reserved.</p>
+  </footer>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
   <script src="script.js"></script>
 </body>
 </html>
