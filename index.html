@@ -23,6 +23,7 @@
       <input type="text" id="invoiceNumber" placeholder="Invoice Number" required>
       <input type="date" id="invoiceDate">
 
+<div class="table-container">
       <table id="invoiceTable">
         <thead>
           <tr>
@@ -32,9 +33,9 @@
             <th>Inicio</th>
             <th>Final</th>
             <th>Horas</th>
-            <th>Tarifa (€/hora)</th>
+            <th>Tarifa (€/hora) + IVA</th>
             <th>Horas extra</th>
-            <th>Tarifa horas extra (€/hora)</th>
+            <th>Tarifa horas extra (€/hora) + IVA</th>
             <th>Uber</th>
             <th>IVA (%)</th>
             <th>Total (€)</th>
@@ -43,8 +44,9 @@
         </thead>
         <tbody id="invoiceItems"></tbody>
       </table>
+</div>
 
-      <button id="addItem">➕ Add Item</button>
+      <button id="addItem">➕ Añadir jornada</button>
 
      <div class="summary">
   <div><strong>Subtotal:</strong> <span id="subtotal">0.00</span>€</div>
@@ -55,8 +57,7 @@
 </div>
 
       <div class="actions">
-        <button id="saveInvoice">💾 Save</button>
-        <button id="generatePDF">📄 Download PDF</button>
+        <button id="generatePDF">📄 Descargar PDF</button>
       </div>
     </div>
   </main>

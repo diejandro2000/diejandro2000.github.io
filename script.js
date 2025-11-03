@@ -34,81 +34,83 @@ function addItem(item = {}) {
   const tbody = document.getElementById("invoiceItems");
   const row = document.createElement("tr");
 
+  const fixedTarifa = 24.2;
+  const fixedTarifaExtra = 30;
+
   row.innerHTML = `
-    <td><input type="date" class="fecha" value="${item.fecha || ""}"></td>
-    <td>
-      <select class="lugarDropdown">
+    <td style="width:80px;"><input type="date" class="fecha" value="${item.fecha || ""}"></td>
+
+    <td style="width:120px;">
+      <select class="lugarDropdown" style="width:100%;">
         <option value="">--Select--</option>
-        <option value="Office">Office</option>
-        <option value="Client Site">Client Site</option>
+        <option value="Teatro Las Vegas">Teatro Las Vegas</option>
+  		<option value="Auditorio Nacional de Música">Auditorio Nacional de Música</option>
+        <option value="Ilustre Colegio de Abogados">Ilustre Colegio de Abogados</option>
+  	    <option value="Other">Other</option>
+      </select>
+      <input type="text" class="lugar" placeholder="Other Lugar" value="${item.lugar || ""}" style="display:none; width:100%;">
+    </td>
+
+    <td style="width:120px;">
+      <select class="actividadDropdown" style="width:100%;">
+        <option value="">--Select--</option>
+  		<option value="Evento">Evento</option>
+  		<option value="Montaje">Montaje</option>
+  		<option value="Desmontaje">Desmontaje</option>
+  	  	<option value="Mantenimiento">Mantenimiento</option>
+        <option value="Cabaret">Cabaret</option>
+        <option value="Gadsby">Gadsby</option>
+        <option value="Cine">Cine</option>
+        <option value="Musical">Musical</option>
+  		<option value="Muay Thai">Muay Thai</option>
+	  	<option value="Visita técnica">Visita técnica</option>
+	  	<option value="Evento Privado">Evento Privado</option>
         <option value="Other">Other</option>
       </select>
-      <input type="text" class="lugar" placeholder="Lugar de trabajo" value="${item.lugar || ""}" style="display:none;">
+      <input type="text" class="actividad" placeholder="Other Actividad" value="${item.actividad || ""}" style="display:none; width:100%;">
     </td>
-    <td>
-      <select class="actividadDropdown">
-        <option value="">--Select--</option>
-        <option value="Consulting">Consulting</option>
-        <option value="Design">Design</option>
-        <option value="Development">Development</option>
-        <option value="Support">Support</option>
-        <option value="Other">Other</option>
-      </select>
-      <input type="text" class="actividad" placeholder="Actividad" value="${item.actividad || ""}" style="display:none;">
-    </td>
-    <td><input type="time" class="inicio" value="${item.inicio || ""}"></td>
-    <td><input type="time" class="final" value="${item.final || ""}"></td>
-    <td class="horas">0.00</td>
-    <td><input type="number" class="tarifa" value="${item.tarifa || 0}" step="0.01"></td>
-    <td><input type="number" class="horasExtra" value="${item.horasExtra || 0}" step="0.01"></td>
-    <td><input type="number" class="tarifaExtra" value="${item.tarifaExtra || 0}" step="0.01"></td>
-    <td>
+
+    <td style="width:70px;"><input type="time" class="inicio" value="${item.inicio || ""}"></td>
+    <td style="width:70px;"><input type="time" class="final" value="${item.final || ""}"></td>
+    <td style="width:50px;" class="horas">0.00</td>
+    <td style="width:50px;">${fixedTarifa}</td>
+    <td style="width:50px;"><input type="number" class="horasExtra" value="${item.horasExtra || 0}" step="0.01" style="width:60px;"></td>
+    <td style="width:50px;">${fixedTarifaExtra}</td>
+    <td style="width:50px;">
       <select class="uber">
         <option value="0">No</option>
-        <option value="1">Yes</option>
+        <option value="1">Si</option>
       </select>
     </td>
-    <td>
+    <td style="width:50px;">
       <select class="iva">
         <option value="0">No</option>
-        <option value="1">Yes</option>
+        <option value="1">Si</option>
       </select>
     </td>
-    <td class="total">0.00</td>
-    <td><button class="remove">❌</button></td>
+    <td style="width:60px;" class="total">0.00</td>
+    <td style="width:30px;"><button class="remove">❌</button></td>
   `;
 
   tbody.appendChild(row);
 
-  // Show text input if "Other" is selected
-  row.querySelector(".lugarDropdown").addEventListener("change", (e) => {
+  // Show/hide text box if "Other" is selected
+  row.querySelector(".lugarDropdown").addEventListener("change", e => {
     const input = row.querySelector(".lugar");
-    if (e.target.value === "Other") input.style.display = "inline-block";
-    else {
-      input.style.display = "none";
-      input.value = e.target.value;
-    }
-    updateTotals();
+    input.style.display = e.target.value === "Other" ? "inline-block" : "none";
   });
 
-  row.querySelector(".actividadDropdown").addEventListener("change", (e) => {
+  row.querySelector(".actividadDropdown").addEventListener("change", e => {
     const input = row.querySelector(".actividad");
-    if (e.target.value === "Other") input.style.display = "inline-block";
-    else {
-      input.style.display = "none";
-      input.value = e.target.value;
-    }
-    updateTotals();
+    input.style.display = e.target.value === "Other" ? "inline-block" : "none";
   });
 
-  // Update totals when inputs change
   const inputs = row.querySelectorAll("input, select");
   inputs.forEach(input => {
     input.addEventListener("input", updateTotals);
     input.addEventListener("change", updateTotals);
   });
 
-  // Remove row
   row.querySelector(".remove").addEventListener("click", () => {
     row.remove();
     updateTotals();
@@ -116,6 +118,7 @@ function addItem(item = {}) {
 
   updateTotals();
 }
+
 
 
 function calculateHours(start, end) {
@@ -132,12 +135,13 @@ function updateTotals() {
   let subtotal = 0;
   let uberCount = 0;
 
+  const fixedTarifa = 24.2;
+  const fixedTarifaExtra = 30;
+
   document.querySelectorAll("#invoiceItems tr").forEach(row => {
     const inicio = row.querySelector(".inicio").value;
     const final = row.querySelector(".final").value;
-    const tarifa = parseFloat(row.querySelector(".tarifa").value) || 0;
     const horasExtra = parseFloat(row.querySelector(".horasExtra").value) || 0;
-    const tarifaExtra = parseFloat(row.querySelector(".tarifaExtra").value) || 0;
     const uberYes = row.querySelector(".uber").value === "1";
     const ivaYes = row.querySelector(".iva").value === "1";
 
@@ -146,17 +150,16 @@ function updateTotals() {
     const horas = calculateHours(inicio, final);
     row.querySelector(".horas").textContent = horas.toFixed(2);
 
-    // Total row calculation including IVA if checked
-    let total = horas * tarifa + horasExtra * tarifaExtra;
+    let total = horas * fixedTarifa + horasExtra * fixedTarifaExtra;
     if (ivaYes) total += total * 0.21; // add 21% IVA if checked
+
     row.querySelector(".total").textContent = total.toFixed(2);
 
     subtotal += total;
   });
 
-  // Fixed tax rates
-  const ivaAmount = subtotal * 0.21;  // 21%
-  const irpfAmount = subtotal * 0.15; // 15%
+  const ivaAmount = subtotal * 0.21;
+  const irpfAmount = subtotal * 0.15;
   const grandTotal = subtotal + ivaAmount - irpfAmount;
 
   document.getElementById("subtotal").textContent = subtotal.toFixed(2);
@@ -164,9 +167,8 @@ function updateTotals() {
   document.getElementById("irpfAmount").textContent = irpfAmount.toFixed(2);
   document.getElementById("grandTotal").textContent = grandTotal.toFixed(2);
 
-  // Display number of Ubers
   const uberNote = document.getElementById("uberNote");
-  if (uberNote) uberNote.textContent = uberCount > 0 ? `${uberCount} Ubers a incluir` : "";
+  if (uberNote) uberNote.textContent = uberCount > 0 ? `${uberCount} Uber(s) a incluir` : "";
 }
 
 
@@ -216,93 +218,68 @@ function generatePDF() {
 
   // ---- INVOICE TABLE ----
   const rows = [];
-  let uberCount = 0;
+let uberCount = 0;
 
-  document.querySelectorAll("#invoiceItems tr").forEach(row => {
-    const fecha = row.querySelector(".fecha").value;
-    const lugar = row.querySelector(".lugar").value;
-    const actividad = row.querySelector(".actividad").value;
-    const inicio = row.querySelector(".inicio").value;
-    const final = row.querySelector(".final").value;
-    const horas = row.querySelector(".horas").textContent;
-    const tarifa = row.querySelector(".tarifa").value;
-    const horasExtra = row.querySelector(".horasExtra").value;
-    const tarifaExtra = row.querySelector(".tarifaExtra").value;
-    const ivaYes = row.querySelector(".iva").value === "1";
-    const uberYes = row.querySelector(".uber").value === "1";
-    const total = parseFloat(row.querySelector(".total").textContent) || 0;
+document.querySelectorAll("#invoiceItems tr").forEach(row => {
+  const fecha = row.querySelector(".fecha").value;
+  const lugar = row.querySelector(".lugarDropdown").value === "Other"
+    ? row.querySelector(".lugar").value
+    : row.querySelector(".lugarDropdown").value;
+  const actividad = row.querySelector(".actividadDropdown").value === "Other"
+    ? row.querySelector(".actividad").value
+    : row.querySelector(".actividadDropdown").value;
+  const inicio = row.querySelector(".inicio").value;
+  const final = row.querySelector(".final").value;
+  const horas = row.querySelector(".horas").textContent;
+  const tarifa = row.querySelector("td:nth-child(7)").textContent;
+  const horasExtra = row.querySelector(".horasExtra").value;
+  const tarifaExtra = row.querySelector("td:nth-child(9)").textContent;
+  const iva = parseInt(row.querySelector(".iva").value);
+  const total = row.querySelector(".total").textContent;
+  const uber = parseInt(row.querySelector(".uber").value);
+  if(uber) uberCount++;
 
-    if (uberYes) uberCount++;
-    rows.push([fecha, lugar, actividad, inicio, final, horas, tarifa, horasExtra, tarifaExtra, uberYes ? "Yes" : "No", ivaYes ? "Yes" : "No", total.toFixed(2)]);
-  });
+  rows.push([fecha, lugar, actividad, inicio, final, horas, tarifa, horasExtra, tarifaExtra, uber ? "Si" : "No", iva ? "Si" : "No", total]);
+});
 
-  const tableStartY = y + 10;
-  doc.autoTable({
-    head: [["Fecha","Lugar de trabajo","Actividad","Inicio","Final","Horas","Tarifa","Horas extra","Tarifa extra","Uber","IVA","Total"]],
-    body: rows,
-    startY: tableStartY,
-    margin: { top: 14, left: 14, right: 14, bottom: 14 },
-    theme: "striped",
-    headStyles: { fillColor: [52, 73, 94], textColor: 255 },
-    styles: { fontSize: 8, cellPadding: 2 },
-    tableWidth: doc.internal.pageSize.getWidth() - 28,
-    showHead: 'everyPage'
-  });
+// Auto-fit table width to page
+doc.autoTable({
+  head: [["Fecha","Lugar de trabajo","Actividad","Inicio","Final","Horas","Tarifa (€/hora) + IVA","Horas extra","Tarifa horas extra (€/hora) + IVA","Uber","IVA","Total (€)"]],
+  body: rows,
+  startY: y + 10,
+  theme: "striped",
+  headStyles: { fillColor: [52, 73, 94], textColor: 255 },
+  styles: { fontSize: 8, cellPadding: 2 },
+  tableWidth: 'auto',          // auto-fit width
+  showHead: 'everyPage'
+});
 
-  // ---- TOTALS SECTION ----
-  const subtotal = parseFloat(document.getElementById("subtotal").textContent) || 0;
-  const ivaAmount = parseFloat(document.getElementById("ivaAmount").textContent) || 0;
-  const irpfAmount = parseFloat(document.getElementById("irpfAmount").textContent) || 0;
-  const grandTotal = parseFloat(document.getElementById("grandTotal").textContent) || 0;
+// ---- TOTALS SECTION ----
+let finalY = doc.lastAutoTable.finalY + 10;
 
-  let finalY = doc.lastAutoTable.finalY + 10;
-  doc.setFont("helvetica", "normal");
-  doc.setFontSize(11);
-  doc.text(`Subtotal: ${subtotal.toFixed(2)}€`, 140, finalY);
-  doc.text(`IVA (21%): ${ivaAmount.toFixed(2)}€`, 140, finalY + 6);
-  doc.text(`IRPF (15%): ${irpfAmount.toFixed(2)}€`, 140, finalY + 12);
+const subtotal = parseFloat(document.getElementById("subtotal").textContent) || 0;
+const ivaAmount = parseFloat(document.getElementById("ivaAmount").textContent) || 0;
+const irpfAmount = parseFloat(document.getElementById("irpfAmount").textContent) || 0;
+const grandTotal = parseFloat(document.getElementById("grandTotal").textContent) || 0;
 
-  doc.setFont("helvetica", "bold");
-  doc.text(`Total: ${grandTotal.toFixed(2)}€`, 140, finalY + 18);
+// Print totals neatly in PDF
+doc.setFont("helvetica", "normal");
+doc.setFontSize(11);
+doc.text(`Subtotal: ${subtotal.toFixed(2)}€`, 140, finalY);
+doc.text(`IVA (21%): ${ivaAmount.toFixed(2)}€`, 140, finalY + 6);
+doc.text(`IRPF (15%): ${irpfAmount.toFixed(2)}€`, 140, finalY + 12);
 
-  // ---- Uber note ----
-  if (uberCount > 0) {
-    doc.setFont("helvetica", "italic");
-    doc.setFontSize(9);
-    doc.text(`${uberCount} Ubers a incluir`, 140, finalY + 24);
+doc.setFont("helvetica", "bold");
+doc.text(`Total: ${grandTotal.toFixed(2)}€`, 140, finalY + 18);
+
+// Add Uber note below Grand Total
+if(uberCount > 0){
+  doc.setFont("helvetica", "italic");
+  doc.setFontSize(10);
+doc.text(`${uberCount} Uber(s) a incluir`, 140, finalY + 24);
   }
 
   doc.save(`invoice_${clientInfo.name.replace(/\s+/g, "_")}.pdf`);
-}
-
-
-function saveInvoice() {
-  const clientId = document.getElementById("clientSelect").value;
-  const clientName = clientId && clients[clientId] ? clients[clientId].name : "";
-  const data = {
-    clientId,
-    clientName,
-    invoiceNumber: document.getElementById("invoiceNumber").value,
-    invoiceDate: document.getElementById("invoiceDate").value,
-    taxRate: document.getElementById("taxRate").value,
-    items: Array.from(document.querySelectorAll("#invoiceItems tr")).map(row => ({
-      fecha: row.querySelector(".fecha").value,
-      lugar: row.querySelector(".lugar").value,
-      actividad: row.querySelector(".actividad").value,
-      inicio: row.querySelector(".inicio").value,
-      final: row.querySelector(".final").value,
-      horas: row.querySelector(".horas").textContent,
-      tarifa: row.querySelector(".tarifa").value,
-      horasExtra: row.querySelector(".horasExtra").value,
-      tarifaExtra: row.querySelector(".tarifaExtra").value,
-      uber: row.querySelector(".uber").value,
-      iva: row.querySelector(".iva").value,
-      total: row.querySelector(".total").textContent
-    }))
-  };
-
-  localStorage.setItem("invoiceData", JSON.stringify(data));
-  alert("Invoice saved locally!");
 }
 
 function loadInvoice() {
