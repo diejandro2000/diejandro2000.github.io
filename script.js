@@ -42,18 +42,16 @@ function addItem(item = {}) {
 
     <td style="width:120px;">
       <select class="lugarDropdown" style="width:100%;">
-        <option value="">--Select--</option>
         <option value="Teatro Las Vegas">Teatro Las Vegas</option>
   		<option value="Auditorio Nacional de Música">Auditorio Nacional de Música</option>
         <option value="Ilustre Colegio de Abogados">Ilustre Colegio de Abogados</option>
-  	    <option value="Other">Other</option>
+  	    <option value="Otro">Otro</option>
       </select>
       <input type="text" class="lugar" placeholder="Other Lugar" value="${item.lugar || ""}" style="display:none; width:100%;">
     </td>
 
     <td style="width:120px;">
       <select class="actividadDropdown" style="width:100%;">
-        <option value="">--Select--</option>
   		<option value="Evento">Evento</option>
   		<option value="Montaje">Montaje</option>
   		<option value="Desmontaje">Desmontaje</option>
@@ -65,7 +63,7 @@ function addItem(item = {}) {
   		<option value="Muay Thai">Muay Thai</option>
 	  	<option value="Visita técnica">Visita técnica</option>
 	  	<option value="Evento Privado">Evento Privado</option>
-        <option value="Other">Other</option>
+        <option value="Otro">Otro</option>
       </select>
       <input type="text" class="actividad" placeholder="Other Actividad" value="${item.actividad || ""}" style="display:none; width:100%;">
     </td>
@@ -91,6 +89,33 @@ function addItem(item = {}) {
     <td style="width:60px;" class="total">0.00</td>
     <td style="width:30px;"><button class="remove">❌</button></td>
   `;
+  // Listen for changes in ANY "lugarDropdown" or "actividadDropdown"
+document.addEventListener("change", function (e) {
+  if (e.target.classList.contains("lugarDropdown")) {
+    const select = e.target;
+    const input = select.nextElementSibling; // the <input> right after it
+    if (select.value === "Otro") {
+      input.style.display = "block";
+      input.focus();
+    } else {
+      input.style.display = "none";
+      input.value = "";
+    }
+  }
+
+  if (e.target.classList.contains("actividadDropdown")) {
+    const select = e.target;
+    const input = select.nextElementSibling; // the <input> right after it
+    if (select.value === "Otro") {
+      input.style.display = "block";
+      input.focus();
+    } else {
+      input.style.display = "none";
+      input.value = "";
+    }
+  }
+});
+
 
   tbody.appendChild(row);
 
@@ -222,10 +247,10 @@ let uberCount = 0;
 
 document.querySelectorAll("#invoiceItems tr").forEach(row => {
   const fecha = row.querySelector(".fecha").value;
-  const lugar = row.querySelector(".lugarDropdown").value === "Other"
+  const lugar = row.querySelector(".lugarDropdown").value === "Otro"
     ? row.querySelector(".lugar").value
     : row.querySelector(".lugarDropdown").value;
-  const actividad = row.querySelector(".actividadDropdown").value === "Other"
+  const actividad = row.querySelector(".actividadDropdown").value === "Otro"
     ? row.querySelector(".actividad").value
     : row.querySelector(".actividadDropdown").value;
   const inicio = row.querySelector(".inicio").value;
