@@ -4,11 +4,29 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Invoice Generator</title>
-  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <h1>Hello, GitHub Pages!</h1>
-  <p>This is your empty website.</p>
-  <script src="js/script.js"></script>
+  <h1>Invoice Generator</h1>
+  
+  <div id="invoice-form">
+    <input type="text" id="clientName" placeholder="Client Name" required>
+    <table id="invoiceTable">
+      <thead>
+        <tr><th>Item</th><th>Qty</th><th>Price</th><th>Total</th></tr>
+      </thead>
+      <tbody id="invoiceItems"></tbody>
+    </table>
+    <button id="addItem">Add Item</button>
+    
+    <div id="total">
+      <strong>Grand Total: $<span id="grandTotal">0.00</span></strong>
+    </div>
+
+    <button id="generatePDF">Download PDF</button>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>
