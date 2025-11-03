@@ -3,37 +3,41 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Invoice Generator</title>
+  <title>Generador de facturas</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <header>
-    <div class="branding">
-      <img src="https://via.placeholder.com/100x50?text=Logo" alt="Company Logo">
-      <div>
-        <h2>Your Company Name</h2>
-        <p>123 Business Road, City, Country</p>
-        <p>Email: info@company.com | +123 456 7890</p>
-      </div>
-    </div>
     <button id="themeToggle">🌙</button>
   </header>
 
   <main>
-    <h1>Invoice Generator</h1>
-
     <div id="invoice-form">
-      <input type="text" id="clientName" placeholder="Client Name" required>
+      <label for="clientSelect">Seleccionar cliente:</label>
+      <select id="clientSelect">
+        <option value="">-- Select Client --</option>
+        <option value="client1">DOS40</option>
+        <option value="client2">Maria Gonzalez</option>
+        <option value="client3">Carlos López</option>
+      </select>
       <input type="text" id="invoiceNumber" placeholder="Invoice Number" required>
       <input type="date" id="invoiceDate">
 
       <table id="invoiceTable">
         <thead>
           <tr>
-            <th>Item</th>
-            <th>Qty</th>
-            <th>Price ($)</th>
-            <th>Total ($)</th>
+            <th>Fecha</th>
+            <th>Lugar de trabajo</th>
+            <th>Actividad</th>
+            <th>Inicio</th>
+            <th>Final</th>
+            <th>Horas</th>
+            <th>Tarifa (€/hora)</th>
+            <th>Horas extra</th>
+            <th>Tarifa horas extra (€/hora)</th>
+            <th>Uber</th>
+            <th>IVA (%)</th>
+            <th>Total (€)</th>
             <th></th>
           </tr>
         </thead>
@@ -42,12 +46,13 @@
 
       <button id="addItem">➕ Add Item</button>
 
-      <div class="summary">
-        <label>Tax (%): <input type="number" id="taxRate" value="10"></label>
-        <div><strong>Subtotal:</strong> $<span id="subtotal">0.00</span></div>
-        <div><strong>Tax:</strong> $<span id="taxAmount">0.00</span></div>
-        <div><strong>Grand Total:</strong> $<span id="grandTotal">0.00</span></div>
-      </div>
+     <div class="summary">
+  <div><strong>Subtotal:</strong> <span id="subtotal">0.00</span>€</div>
+  <div><strong>IVA (21%):</strong> <span id="ivaAmount">0.00</span>€</div>
+  <div><strong>IRPF (15%):</strong> <span id="irpfAmount">0.00</span>€</div>
+  <div><strong>Total:</strong> <span id="grandTotal">0.00</span>€</div>
+  <div id="uberNote" style="font-style: italic; font-size: 0.9em;"></div>
+</div>
 
       <div class="actions">
         <button id="saveInvoice">💾 Save</button>
@@ -55,10 +60,6 @@
       </div>
     </div>
   </main>
-
-  <footer>
-    <p>© 2025 Your Company Name. All rights reserved.</p>
-  </footer>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
