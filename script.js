@@ -47,7 +47,7 @@ function addItem(item = {}) {
         <option value="Ilustre Colegio de Abogados">Ilustre Colegio de Abogados</option>
   	    <option value="Otro">Otro</option>
       </select>
-      <input type="text" class="lugar" placeholder="Other Lugar" value="${item.lugar || ""}" style="display:none; width:100%;">
+      <input type="text" class="lugar" placeholder="Otro" value="${item.lugar || ""}" style="display:none; width:100%;">
     </td>
 
     <td style="width:120px;">
@@ -65,7 +65,7 @@ function addItem(item = {}) {
 	  	<option value="Evento Privado">Evento Privado</option>
         <option value="Otro">Otro</option>
       </select>
-      <input type="text" class="actividad" placeholder="Other Actividad" value="${item.actividad || ""}" style="display:none; width:100%;">
+      <input type="text" class="actividad" placeholder="Otro" value="${item.actividad || ""}" style="display:none; width:100%;">
     </td>
 
     <td style="width:70px;"><input type="time" class="inicio" value="${item.inicio || ""}"></td>
