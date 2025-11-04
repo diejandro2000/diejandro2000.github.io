@@ -33,26 +33,26 @@ function addItem(item = {}) {
     <td style="width:120px;">
       <select class="lugarDropdown" style="width:100%;">
         <option value="Teatro Las Vegas">Teatro Las Vegas</option>
-  		<option value="Auditorio Nacional de Música">Auditorio Nacional de Música</option>
+        <option value="Auditorio Nacional de Música">Auditorio Nacional de Música</option>
         <option value="Ilustre Colegio de Abogados">Ilustre Colegio de Abogados</option>
-  	    <option value="Otro">Otro</option>
+        <option value="Otro">Otro</option>
       </select>
       <input type="text" class="lugar" placeholder="Otro" value="${item.lugar || ""}" style="display:none; width:100%;">
     </td>
 
     <td style="width:120px;">
       <select class="actividadDropdown" style="width:100%;">
-  		<option value="Evento">Evento</option>
-  		<option value="Montaje">Montaje</option>
-  		<option value="Desmontaje">Desmontaje</option>
-  	  	<option value="Mantenimiento">Mantenimiento</option>
+        <option value="Evento">Evento</option>
+        <option value="Montaje">Montaje</option>
+        <option value="Desmontaje">Desmontaje</option>
+        <option value="Mantenimiento">Mantenimiento</option>
         <option value="Cabaret">Cabaret</option>
         <option value="Gadsby">Gadsby</option>
         <option value="Cine">Cine</option>
         <option value="Musical">Musical</option>
-  		<option value="Muay Thai">Muay Thai</option>
-	  	<option value="Visita técnica">Visita técnica</option>
-	  	<option value="Evento Privado">Evento Privado</option>
+        <option value="Muay Thai">Muay Thai</option>
+        <option value="Visita técnica">Visita técnica</option>
+        <option value="Evento Privado">Evento Privado</option>
         <option value="Otro">Otro</option>
       </select>
       <input type="text" class="actividad" placeholder="Otro" value="${item.actividad || ""}" style="display:none; width:100%;">
@@ -60,182 +60,163 @@ function addItem(item = {}) {
 
     <td style="width:70px;"><input type="time" class="inicio" value="${item.inicio || ""}"></td>
     <td style="width:70px;"><input type="time" class="final" value="${item.final || ""}"></td>
-    <td style="width:80px;" class="horasCell">
-  <span class="horas">0.00</span>
-  <button class="editHoras" title="Editar horas" style="margin-left:4px;">✏️</button>
-</td>
-<td style="width:80px;" class="horasCell">
-  <span class="horasExtra">0.00</span>
-  <button class="editHoras" title="Editar horas extra" style="margin-left:4px;">✏️</button>
-</td>
+
+    <td style="width:80px;"><input type="number" class="horas" value="${item.horas?.toFixed?.(2) || "0.00"}" step="0.01" style="width:60px;"></td>
+
     <td style="width:50px;">
       <select class="uber">
         <option value="0">No</option>
-        <option value="1">Si</option>
+        <option value="1">Sí</option>
       </select>
     </td>
+
     <td style="width:100px;" class="totalCell">
-  <input type="number" class="totalInput" value="0.00" step="0.01" style="width:60px;">
-  <span class="extraPrice" style="margin-left:4px; font-size:0.8em; color:#555;">+0.00</span>
-</td>
+    <input type="number" class="totalInput" value="0.00" step="0.01" style="width:60px;">
+    <span class="extraPrice" style="margin-left:4px; font-size:0.8em; color:#555;"></span>
+  </td>
+
 
     <td style="width:30px;"><button class="remove">❌</button></td>
   `;
-  // Listen for changes in ANY "lugarDropdown" or "actividadDropdown"
-document.addEventListener("change", function (e) {
-  if (e.target.classList.contains("lugarDropdown")) {
-    const select = e.target;
-    const input = select.nextElementSibling; // the <input> right after it
-    if (select.value === "Otro") {
-      input.style.display = "block";
-      input.focus();
-    } else {
-      input.style.display = "none";
-      input.value = "";
-    }
-  }
-
-  if (e.target.classList.contains("actividadDropdown")) {
-    const select = e.target;
-    const input = select.nextElementSibling; // the <input> right after it
-    if (select.value === "Otro") {
-      input.style.display = "block";
-      input.focus();
-    } else {
-      input.style.display = "none";
-      input.value = "";
-    }
-  }
-});
-
 
   tbody.appendChild(row);
 
-  // Show/hide text box if "Other" is selected
-  row.querySelector(".lugarDropdown").addEventListener("change", e => {
-    const input = row.querySelector(".lugar");
-    input.style.display = e.target.value === "Other" ? "inline-block" : "none";
+  // --- references
+  const inicioInput = row.querySelector(".inicio");
+  const finalInput = row.querySelector(".final");
+  const horasInput = row.querySelector(".horas");
+  const totalInput = row.querySelector(".totalInput");
+
+  // --- Calculate from inicio/final ---
+  function recalcFromTimes() {
+    const inicio = inicioInput.value;
+    const fin = finalInput.value;
+
+    if (inicio && fin) {
+      const start = new Date(`1970-01-01T${inicio}:00`);
+      const end = new Date(`1970-01-01T${fin}:00`);
+      let diff = (end - start) / 3600000;
+      if (diff < 0) diff += 24; // cross midnight
+
+      let horas = diff;
+      let horasExtra = 0;
+      if (horas > 10) {
+        horasExtra = horas - 10;
+        horas = 10;
+      }
+
+      horasInput.value = horas.toFixed(2);
+      horasExtraInput.value = horasExtra.toFixed(2);
+      updateTotals();
+    }
+  }
+
+  // --- When user manually edits horas or horas extra ---
+  function manualEdit() {
+    // reset inicio/final if manually entered
+    inicioInput.value = "";
+    finalInput.value = "";
+    updateTotals();
+  }
+
+  horasInput.addEventListener("input", manualEdit);
+
+  // --- Auto calculate on inicio/final change ---
+  inicioInput.addEventListener("change", recalcFromTimes);
+  finalInput.addEventListener("change", recalcFromTimes);
+
+  // --- Update totals when any field changes ---
+  row.querySelectorAll("input, select").forEach(el => {
+    el.addEventListener("input", updateTotals);
+    el.addEventListener("change", updateTotals);
   });
 
-  row.querySelector(".actividadDropdown").addEventListener("change", e => {
-    const input = row.querySelector(".actividad");
-    input.style.display = e.target.value === "Other" ? "inline-block" : "none";
-  });
-
-  const inputs = row.querySelectorAll("input, select");
-  inputs.forEach(input => {
-    input.addEventListener("input", updateTotals);
-    input.addEventListener("change", updateTotals);
-  });
-
+  // --- Remove row ---
   row.querySelector(".remove").addEventListener("click", () => {
     row.remove();
     updateTotals();
   });
 
-// Allow editing hours manually
-row.querySelector(".editHoras").addEventListener("click", () => {
-  const span = row.querySelector(".horas");
-  const currentValue = span.textContent;
-  const input = document.createElement("input");
-  input.type = "number";
-  input.value = currentValue;
-  input.step = "0.01";
-  input.style.width = "60px";
-  span.replaceWith(input);
-  input.focus();
-
-  input.addEventListener("blur", () => {
-    const newValue = parseFloat(input.value) || 0;
-    const newSpan = document.createElement("span");
-    newSpan.className = "horas";
-    newSpan.textContent = newValue.toFixed(2);
-    input.replaceWith(newSpan);
-    updateTotals();
-  });
-});
-
-// Allow editing total manually
-row.querySelector(".editTotal").addEventListener("click", () => {
-  const span = row.querySelector(".total");
-  const currentValue = span.textContent;
-  const input = document.createElement("input");
-  input.type = "number";
-  input.value = currentValue;
-  input.step = "0.01";
-  input.style.width = "70px";
-  span.replaceWith(input);
-  input.focus();
-
-  input.addEventListener("blur", () => {
-    const newValue = parseFloat(input.value) || 0;
-    const newSpan = document.createElement("span");
-    newSpan.className = "total";
-    newSpan.textContent = newValue.toFixed(2);
-    input.replaceWith(newSpan);
-    updateTotals();
-  });
-});
-
-
+  recalcFromTimes();
   updateTotals();
 }
 
 
 
-function calculateHours(start, end) {
-  if (!start || !end) return 0;
-  const [sh, sm] = start.split(":").map(Number);
-  const [eh, em] = end.split(":").map(Number);
-  let startMinutes = sh * 60 + sm;
-  let endMinutes = eh * 60 + em;
-  if (endMinutes < startMinutes) endMinutes += 24 * 60;
-  return (endMinutes - startMinutes) / 60;
+function calculateHours(inicio, final) {
+  if (!inicio || !final) return 0;
+  const start = new Date(`1970-01-01T${inicio}:00`);
+  const end = new Date(`1970-01-01T${final}:00`);
+  let diff = (end - start) / 3600000;
+  if (diff < 0) diff += 24; // handle overnight shifts
+  return diff;
 }
+
 
 function updateTotals() {
   let subtotal = 0;
   let uberCount = 0;
 
-  const fixedTarifaExtra = 24.2; // Extra hours rate
+  const tarifaExtra = 24.2;  // €/h for hours above 10
   const maxNormalHours = 10;
-  const uberPrice = 0; // Adjust if needed
+  const uberPrice = 0;
 
   document.querySelectorAll("#invoiceItems tr").forEach(row => {
-    const inicio = row.querySelector(".inicio").value;
-    const final = row.querySelector(".final").value;
-    const uberYes = row.querySelector(".uber").value === "1";
+    const inicio = row.querySelector(".inicio")?.value || "";
+    const final = row.querySelector(".final")?.value || "";
+    const horasInput = row.querySelector(".horas");
+    const totalSpan = row.querySelector(".totalValue");
+    const extraTextSpan = row.querySelector(".extraPrice");
+    const uberYes = row.querySelector(".uber")?.value === "1";
 
-    // Calculate hours
-    let totalHours = calculateHours(inicio, final);
-    let normalHours = Math.min(totalHours, maxNormalHours);
-    let extraHours = Math.max(totalHours - maxNormalHours, 0);
+    // ⏱️ Recalculate hours from inicio/fin if set
+    if (inicio && final) {
+      const totalHours = calculateHours(inicio, final);
+      horasInput.value = totalHours.toFixed(2);
+    }
 
-    row.querySelector(".horas").textContent = normalHours.toFixed(2);
-    row.querySelector(".horasExtra").textContent = extraHours.toFixed(2);
+    const horas = parseFloat(horasInput?.value) || 0;
+    const extraHours = Math.max(horas - maxNormalHours, 0);
+    const extraTotal = extraHours * tarifaExtra;
 
-    // Calculate extra hours price
-    const extraPrice = extraHours * fixedTarifaExtra;
-    row.querySelector(".extraPrice").textContent = `+${extraPrice.toFixed(2)}€`;
+    // 💰 Update total cell
+    if (totalSpan) {
+      if (extraHours > 0) {
+        totalSpan.textContent = `${extraTotal.toFixed(2)} €`;
+      } else {
+        totalSpan.textContent = `0.00 €`;
+      }
+    }
 
-    // Get user input total
-    const userTotal = parseFloat(row.querySelector(".totalInput").value) || 0;
+    // 📝 Show "+n € por n horas extra"
+    if (extraTextSpan) {
+      if (extraHours > 0) {
+        extraTextSpan.textContent = `+${extraTotal.toFixed(2)} € por ${extraHours.toFixed(2)} horas extra`;
+        extraTextSpan.style.display = "inline";
+      } else {
+        extraTextSpan.textContent = "";
+        extraTextSpan.style.display = "none";
+      }
+    }
 
-    // Add both user total and extra hours to subtotal
-    subtotal += userTotal + extraPrice + (uberYes ? uberPrice : 0);
-
+    // 🚗 Uber and subtotal
+    const rowTotal = extraTotal + (uberYes ? uberPrice : 0);
+    subtotal += rowTotal;
     if (uberYes) uberCount++;
   });
 
+  // 📊 Totals
   const ivaAmount = subtotal * 0.21;
   const irpfAmount = subtotal * 0.15;
   const grandTotal = subtotal + ivaAmount - irpfAmount;
 
+  // 💵 Update footer
   document.getElementById("subtotal").textContent = subtotal.toFixed(2);
   document.getElementById("ivaAmount").textContent = ivaAmount.toFixed(2);
   document.getElementById("irpfAmount").textContent = irpfAmount.toFixed(2);
   document.getElementById("grandTotal").textContent = grandTotal.toFixed(2);
 }
+
 
 
 function generatePDF() {
