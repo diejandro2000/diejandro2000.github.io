@@ -27,9 +27,6 @@ function addItem(item = {}) {
   const tbody = document.getElementById("invoiceItems");
   const row = document.createElement("tr");
 
-  const fixedTarifa = 24.2;
-  const fixedTarifaExtra = 30;
-
   row.innerHTML = `
     <td style="width:80px;"><input type="date" class="fecha" value="${item.fecha || ""}"></td>
 
@@ -63,17 +60,21 @@ function addItem(item = {}) {
 
     <td style="width:70px;"><input type="time" class="inicio" value="${item.inicio || ""}"></td>
     <td style="width:70px;"><input type="time" class="final" value="${item.final || ""}"></td>
-    <td style="width:50px;" class="horas">0.00</td>
-    <td style="width:50px;">${fixedTarifa}</td>
+    <td style="width:80px;" class="horasCell">
+  <span class="horas">0.00</span>
+  <button class="editHoras" title="Editar horas" style="margin-left:4px;">✏️</button>
+</td>
     <td style="width:50px;"><input type="number" class="horasExtra" value="${item.horasExtra || 0}" step="0.01" style="width:60px;"></td>
-    <td style="width:50px;">${fixedTarifaExtra}</td>
     <td style="width:50px;">
       <select class="uber">
         <option value="0">No</option>
         <option value="1">Si</option>
       </select>
     </td>
-    <td style="width:60px;" class="total">0.00</td>
+    <td style="width:80px;" class="totalCell">
+  <span class="total">0.00</span>
+  <button class="editTotal" title="Editar total" style="margin-left:4px;">✏️</button>
+</td>
     <td style="width:30px;"><button class="remove">❌</button></td>
   `;
   // Listen for changes in ANY "lugarDropdown" or "actividadDropdown"
@@ -127,6 +128,51 @@ document.addEventListener("change", function (e) {
     row.remove();
     updateTotals();
   });
+
+// Allow editing hours manually
+row.querySelector(".editHoras").addEventListener("click", () => {
+  const span = row.querySelector(".horas");
+  const currentValue = span.textContent;
+  const input = document.createElement("input");
+  input.type = "number";
+  input.value = currentValue;
+  input.step = "0.01";
+  input.style.width = "60px";
+  span.replaceWith(input);
+  input.focus();
+
+  input.addEventListener("blur", () => {
+    const newValue = parseFloat(input.value) || 0;
+    const newSpan = document.createElement("span");
+    newSpan.className = "horas";
+    newSpan.textContent = newValue.toFixed(2);
+    input.replaceWith(newSpan);
+    updateTotals();
+  });
+});
+
+// Allow editing total manually
+row.querySelector(".editTotal").addEventListener("click", () => {
+  const span = row.querySelector(".total");
+  const currentValue = span.textContent;
+  const input = document.createElement("input");
+  input.type = "number";
+  input.value = currentValue;
+  input.step = "0.01";
+  input.style.width = "70px";
+  span.replaceWith(input);
+  input.focus();
+
+  input.addEventListener("blur", () => {
+    const newValue = parseFloat(input.value) || 0;
+    const newSpan = document.createElement("span");
+    newSpan.className = "total";
+    newSpan.textContent = newValue.toFixed(2);
+    input.replaceWith(newSpan);
+    updateTotals();
+  });
+});
+
 
   updateTotals();
 }

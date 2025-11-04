@@ -38,6 +38,12 @@ h1 {
   text-align: center;
 }
 
+.th-subtext {
+  font-weight: normal;
+  font-size: 0.85em;
+  color: #555; /* optional softer color */
+}
+
 main {
   max-width: 1400px; /* wider than before */
   margin: 20px auto;
@@ -104,3 +110,23 @@ input[type="text"], input[type="number"], input[type="date"] {
   border: 1px solid #ccc;
   border-radius: 5px;
 }
+
+.editHoras, .editTotal {
+  background: none;
+  border: none;
+  color: #888;
+  font-size: 12px;      /* smaller icon */
+  cursor: pointer;
+  padding: 0;
+  margin-left: 3px;
+  vertical-align: middle;
+  opacity: 0.6;
+  transition: opacity 0.2s ease;
+}
+
+.editHoras:hover,
+.editTotal:hover {
+  opacity: 1;
+  color: #333;          /* slightly darker when hovered */
+}
+
