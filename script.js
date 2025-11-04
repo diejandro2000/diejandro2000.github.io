@@ -73,12 +73,6 @@ function addItem(item = {}) {
         <option value="1">Si</option>
       </select>
     </td>
-    <td style="width:50px;">
-      <select class="iva">
-        <option value="0">No</option>
-        <option value="1">Si</option>
-      </select>
-    </td>
     <td style="width:60px;" class="total">0.00</td>
     <td style="width:30px;"><button class="remove">❌</button></td>
   `;
@@ -161,7 +155,6 @@ function updateTotals() {
     const final = row.querySelector(".final").value;
     const horasExtra = parseFloat(row.querySelector(".horasExtra").value) || 0;
     const uberYes = row.querySelector(".uber").value === "1";
-    const ivaYes = row.querySelector(".iva").value === "1";
 
     if (uberYes) uberCount++;
 
@@ -169,7 +162,6 @@ function updateTotals() {
     row.querySelector(".horas").textContent = horas.toFixed(2);
 
     let total = horas * fixedTarifa + horasExtra * fixedTarifaExtra;
-    if (ivaYes) total += total * 0.21; // add 21% IVA if checked
 
     row.querySelector(".total").textContent = total.toFixed(2);
 
@@ -275,7 +267,6 @@ function generatePDF() {
     const tarifa = row.querySelector("td:nth-child(7)").textContent;
     const horasExtra = row.querySelector(".horasExtra").value;
     const tarifaExtra = row.querySelector("td:nth-child(9)").textContent;
-    const iva = parseInt(row.querySelector(".iva").value);
     const total = row.querySelector(".total").textContent;
     const uber = parseInt(row.querySelector(".uber").value);
     if (uber) uberCount++;
@@ -283,7 +274,7 @@ function generatePDF() {
     rows.push([
       fecha, lugar, actividad, inicio, final, horas,
       tarifa, horasExtra, tarifaExtra,
-      uber ? "Si" : "No", iva ? "Si" : "No", total
+      uber ? "Si" : "No", total
     ]);
   });
 
@@ -291,7 +282,7 @@ function generatePDF() {
     head: [[
       "Fecha","Lugar de trabajo","Actividad","Inicio","Final","Horas",
       "Tarifa (€/hora) + IVA","Horas extra","Tarifa horas extra (€/hora) + IVA",
-      "Uber","IVA","Total (€)"
+      "Uber","Total (€)"
     ]],
     body: rows,
     startY: y + 10,
