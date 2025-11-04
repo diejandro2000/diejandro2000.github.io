@@ -193,8 +193,7 @@ function updateTotals() {
   let subtotal = 0;
   let uberCount = 0;
 
-  const fixedTarifa = 24.2;
-  const fixedTarifaExtra = 30;
+  const fixedTarifaExtra = 24.2;
 
   document.querySelectorAll("#invoiceItems tr").forEach(row => {
     const inicio = row.querySelector(".inicio").value;
@@ -202,12 +201,11 @@ function updateTotals() {
     const horasExtra = parseFloat(row.querySelector(".horasExtra").value) || 0;
     const uberYes = row.querySelector(".uber").value === "1";
 
-    if (uberYes) uberCount++;
-
-    const horas = calculateHours(inicio, final);
+	const horas = calculateHours(inicio, final);
     row.querySelector(".horas").textContent = horas.toFixed(2);
 
-    let total = horas * fixedTarifa + horasExtra * fixedTarifaExtra;
+    let total = horasExtra * fixedTarifaExtra;
+    if (uberYes) total += uberPrice;
 
     row.querySelector(".total").textContent = total.toFixed(2);
 
@@ -222,9 +220,6 @@ function updateTotals() {
   document.getElementById("ivaAmount").textContent = ivaAmount.toFixed(2);
   document.getElementById("irpfAmount").textContent = irpfAmount.toFixed(2);
   document.getElementById("grandTotal").textContent = grandTotal.toFixed(2);
-
-  const uberNote = document.getElementById("uberNote");
-  if (uberNote) uberNote.textContent = uberCount > 0 ? `${uberCount} Uber(s) a incluir` : "";
 }
 
 
