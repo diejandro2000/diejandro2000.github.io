@@ -64,17 +64,21 @@ function addItem(item = {}) {
   <span class="horas">0.00</span>
   <button class="editHoras" title="Editar horas" style="margin-left:4px;">✏️</button>
 </td>
-    <td style="width:50px;"><input type="number" class="horasExtra" value="${item.horasExtra || 0}" step="0.01" style="width:60px;"></td>
+<td style="width:80px;" class="horasCell">
+  <span class="horasExtra">0.00</span>
+  <button class="editHoras" title="Editar horas extra" style="margin-left:4px;">✏️</button>
+</td>
     <td style="width:50px;">
       <select class="uber">
         <option value="0">No</option>
         <option value="1">Si</option>
       </select>
     </td>
-    <td style="width:80px;" class="totalCell">
-  <span class="total">0.00</span>
-  <button class="editTotal" title="Editar total" style="margin-left:4px;">✏️</button>
+    <td style="width:100px;" class="totalCell">
+  <input type="number" class="totalInput" value="0.00" step="0.01" style="width:60px;">
+  <span class="extraPrice" style="margin-left:4px; font-size:0.8em; color:#555;">+0.00</span>
 </td>
+
     <td style="width:30px;"><button class="remove">❌</button></td>
   `;
   // Listen for changes in ANY "lugarDropdown" or "actividadDropdown"
@@ -193,23 +197,34 @@ function updateTotals() {
   let subtotal = 0;
   let uberCount = 0;
 
-  const fixedTarifaExtra = 24.2;
+  const fixedTarifaExtra = 24.2; // Extra hours rate
+  const maxNormalHours = 10;
+  const uberPrice = 0; // Adjust if needed
 
   document.querySelectorAll("#invoiceItems tr").forEach(row => {
     const inicio = row.querySelector(".inicio").value;
     const final = row.querySelector(".final").value;
-    const horasExtra = parseFloat(row.querySelector(".horasExtra").value) || 0;
     const uberYes = row.querySelector(".uber").value === "1";
 
-	const horas = calculateHours(inicio, final);
-    row.querySelector(".horas").textContent = horas.toFixed(2);
+    // Calculate hours
+    let totalHours = calculateHours(inicio, final);
+    let normalHours = Math.min(totalHours, maxNormalHours);
+    let extraHours = Math.max(totalHours - maxNormalHours, 0);
 
-    let total = horasExtra * fixedTarifaExtra;
-    if (uberYes) total += uberPrice;
+    row.querySelector(".horas").textContent = normalHours.toFixed(2);
+    row.querySelector(".horasExtra").textContent = extraHours.toFixed(2);
 
-    row.querySelector(".total").textContent = total.toFixed(2);
+    // Calculate extra hours price
+    const extraPrice = extraHours * fixedTarifaExtra;
+    row.querySelector(".extraPrice").textContent = `+${extraPrice.toFixed(2)}€`;
 
-    subtotal += total;
+    // Get user input total
+    const userTotal = parseFloat(row.querySelector(".totalInput").value) || 0;
+
+    // Add both user total and extra hours to subtotal
+    subtotal += userTotal + extraPrice + (uberYes ? uberPrice : 0);
+
+    if (uberYes) uberCount++;
   });
 
   const ivaAmount = subtotal * 0.21;
@@ -239,27 +254,25 @@ function generatePDF() {
   doc.text(`Fecha de emisión: ${invoiceDate}`, 140, y);
 
   // ---- CLIENT LOGOS (BASE64) ----
-  // Replace the string below with your actual Base64 logos
   const clientLogos = {
-    DOS40: "data:image/jpeg;base64,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",
+    DOS40: "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/…", // truncated
     nologo: null
   };
-
   const clientId = document.getElementById("clientSelect").value;
   const logoBase64 = clientLogos[clientId] || null;
   const pageWidth = doc.internal.pageSize.getWidth();
 
-  	if (logoBase64) {
-	    try {
-	      const imgWidth = 40;
-	      const imgHeight = 40;
-	      const imgY = 48; // 👈 lowered from 15 → 42 to align with details
-	      const imgX = pageWidth - imgWidth - 20;
-	      doc.addImage(logoBase64, "PNG", imgX, imgY, imgWidth, imgHeight);
-	    } catch (err) {
-	      console.warn("⚠️ Could not embed logo:", err);
-	    }
-	  }
+  if (logoBase64) {
+    try {
+      const imgWidth = 40;
+      const imgHeight = 40;
+      const imgX = pageWidth - imgWidth - 20;
+      const imgY = 48;
+      doc.addImage(logoBase64, "PNG", imgX, imgY, imgWidth, imgHeight);
+    } catch (err) {
+      console.warn("⚠️ Could not embed logo:", err);
+    }
+  }
 
   // ---- BUSINESS INFO ----
   y = 30;
@@ -277,6 +290,18 @@ function generatePDF() {
   y += 6;
   doc.text("ES9001821649210208511353", 14, y);
 
+  const clients = {
+    DOS40: {
+      name: "DOS40 SOLUCIONES AUDIOVISUALES Y EVENTOS S.L.U.",
+      address: "Plaza de la Constitución 2, Hoyo de Manzanares, 28240 Madrid, España",
+      number: "B87799730"
+    },
+    nologo: {
+      name: "Maria Gonzalez",
+      address: "Avenida Siempre Viva 45, 28002, Madrid, España",
+      number: "123456"
+    }
+  };
   const clientInfo = clients[clientId] || { name: "Client Name", address: "", number: "" };
 
   y += 12;
@@ -305,26 +330,27 @@ function generatePDF() {
     const inicio = row.querySelector(".inicio").value;
     const final = row.querySelector(".final").value;
     const horas = row.querySelector(".horas").textContent;
-    const tarifa = row.querySelector("td:nth-child(7)").textContent;
-    const horasExtra = row.querySelector(".horasExtra").value;
-    const tarifaExtra = row.querySelector("td:nth-child(9)").textContent;
-    const total = row.querySelector(".total").textContent;
+    const horasExtra = parseFloat(row.querySelector(".horasExtra").textContent) || 0;
+
+    // Take the user-edited total from input box
+    const totalInput = parseFloat(row.querySelector(".totalInput").value) || 0;
+
+    // Append extra hours info only if > 0
+    let totalText = totalInput.toFixed(2);
+    if (horasExtra > 0) {
+      const extraPrice = parseFloat(row.querySelector(".extraPrice").textContent.replace('+','').replace('€','')) || 0;
+      totalText += ` + ${horasExtra}h extra (${extraPrice.toFixed(2)}€)`;
+    }
+
     const uber = parseInt(row.querySelector(".uber").value);
     if (uber) uberCount++;
 
-    rows.push([
-      fecha, lugar, actividad, inicio, final, horas,
-      tarifa, horasExtra, tarifaExtra,
-      uber ? "Si" : "No", total
-    ]);
+    // Correct column order: Fecha, Lugar, Actividad, Inicio, Final, Horas, Uber, Total
+    rows.push([fecha, lugar, actividad, inicio, final, horas, uber ? "Si" : "No", totalText]);
   });
 
   doc.autoTable({
-    head: [[
-      "Fecha","Lugar de trabajo","Actividad","Inicio","Final","Horas",
-      "Tarifa (€/hora) + IVA","Horas extra","Tarifa horas extra (€/hora) + IVA",
-      "Uber","Total (€)"
-    ]],
+    head: [["Fecha","Lugar de trabajo","Actividad","Inicio","Final","Horas","Uber","Total (€)"]],
     body: rows,
     startY: y + 10,
     theme: "striped",
@@ -356,8 +382,9 @@ function generatePDF() {
   }
 
   // ---- SAVE PDF ----
-  doc.save(`invoice_${invoiceDate}.pdf`);
+  doc.save(`factura_${invoiceDate}.pdf`);
 }
+
 
 
 function loadInvoice() {
