@@ -20,9 +20,9 @@ const clients = {
     number: "B87799730"
   },
   nologo: {
-    name: "Maria Gonzalez",
-    address: "Avenida Siempre Viva 45, 28002, Madrid, España",
-    number: "123456"
+    name: "NOX AUDIOVISUALES S.L",
+    address: "C/Hierro 2, 28770 Colmenar Viejo, Madrid",
+    number: "B-87256574"
   }
 };
 
@@ -162,7 +162,7 @@ function updateTotals() {
   let subtotal = 0;
   let uberCount = 0;
 
-  const tarifaExtra = 24.2;  // €/h for hours above 10
+  const tarifaExtra = 20;  // €/h for hours above 10
   const maxNormalHours = 10;
 
   document.querySelectorAll("#invoiceItems tr").forEach(row => {
@@ -313,7 +313,7 @@ function generatePDF() {
 
     // --- TABLE DATA ---
     const rows = [];
-    const tarifaExtra = 24.2;
+    const tarifaExtra = 20;
 
     document.querySelectorAll("#invoiceItems tr").forEach((row) => {
       const fecha = row.querySelector(".fecha")?.value || "";
@@ -390,7 +390,7 @@ function generatePDF() {
 
       let totalExtras = 0;
       if (horas > 10) {
-        totalExtras += (horas - 10) * 24.2;
+        totalExtras += (horas - 10) * tarifaExtra;
       }
       if (uberYes && uberValue > 0) {
         totalExtras += uberValue;
