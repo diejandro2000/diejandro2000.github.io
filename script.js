@@ -272,9 +272,9 @@ function generatePDF() {
         number: "B87799730",
       },
       nologo: {
-        name: "Maria Gonzalez",
-        address: "Avenida Siempre Viva 45, 28002, Madrid, España",
-        number: "123456",
+        name: "NOX AUDIOVISUALES S.L",
+        address: "C/Hierro 2, 28770 Colmenar Viejo, Madrid",
+        number: "B-87256574"
       },
     };
 
