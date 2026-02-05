@@ -23,6 +23,11 @@ const clients = {
     name: "NOX AUDIOVISUALES S.L",
     address: "C/Hierro 2, 28770 Colmenar Viejo, Madrid",
     number: "B-87256574"
+  },
+  Lopezgarcia: {
+    name: "LÓPEZ GARCÍA SONORIZACIONES S.L.",
+    address: "C/Maqueda 28 1D 28024 Madrid",
+    number: "B-86354388"
   }
 };
 
