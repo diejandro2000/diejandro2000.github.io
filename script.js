@@ -398,8 +398,14 @@ function generatePDF() {
     });
 
     // --- TOTALS ---
-    const finalY = doc.lastAutoTable.finalY + 10;
+    let finalY = doc.lastAutoTable.finalY + 10;
 
+    // If totals would overflow the page, add a new one
+    const pageHeight = doc.internal.pageSize.getHeight();
+    if (finalY + 30 > pageHeight - 20) {
+      doc.addPage();
+      finalY = 20;
+    }
     // ✅ Recalculate subtotal including Uber + Extras
     let subtotal = 0;
     document.querySelectorAll("#invoiceItems tr").forEach((row) => {
