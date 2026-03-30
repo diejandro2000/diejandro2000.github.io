@@ -28,6 +28,11 @@ const clients = {
     name: "LÓPEZ GARCÍA SONORIZACIONES S.L.",
     address: "C/Maqueda 28 1D 28024 Madrid",
     number: "B-86354388"
+  },
+  angelica: {
+    name: "Angélica Uceda García",
+    address: "C/Menorca 1, Móstoles Madrid",
+    number: "05332789D"
   }
 };
 
@@ -286,6 +291,11 @@ function generatePDF() {
         address: "C/Maqueda 28 1D 28024 Madrid",
         number: "B-86354388"
       },
+      angelica: {
+        name: "Angélica Uceda García",
+        address: "C/Menorca 1, Móstoles Madrid",
+        number: "05332789D"
+      }
     };
 
     const clientId = document.getElementById("clientSelect")?.value || "nologo";
