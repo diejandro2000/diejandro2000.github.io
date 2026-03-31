@@ -1,5 +1,3 @@
-const { jsPDF } = window.jspdf;
-
 document.addEventListener("DOMContentLoaded", () => {
   loadInvoice();
   document.getElementById("addItem").addEventListener("click", addItem);
