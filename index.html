@@ -19,43 +19,57 @@
         <option value="nologo">NOX AUDIOVISUALES S.L</option>
         <option value="Lopezgarcia">LÓPEZ GARCÍA SONORIZACIONES S.L.</option>
         <option value="angelica">Angélica Uceda García</option>
-      </option>
       </select>
       <input type="text" id="invoiceNumber" placeholder="Número de factura" required>
       <input type="date" id="invoiceDate">
 
-
-<div class="table-container">
-      <table id="invoiceTable">
-        <thead>
-          <tr>
-            <th>Fecha</th>
-            <th>Lugar de trabajo</th>
-            <th>Actividad</th>
-            <th>Inicio</th>
-            <th>Final</th>
-            <th>Horas <span class="th-subtext">[Tarifa horas extra (€/hora) = 20]</span></th>
-            <th>Dieta</th>
-            <th>Total (€)</th>
-          </tr>
-        </thead>
-        <tbody id="invoiceItems"></tbody>
-      </table>
-</div>
+      <div class="table-container">
+        <table id="invoiceTable">
+          <thead>
+            <tr>
+              <th>Fecha</th>
+              <th>Lugar de trabajo</th>
+              <th>Actividad</th>
+              <th>Inicio</th>
+              <th>Final</th>
+              <th>Horas <span class="th-subtext">[Tarifa horas extra (€/hora) = 20]</span></th>
+              <th>Dieta</th>
+              <th>Total (€)</th>
+            </tr>
+          </thead>
+          <tbody id="invoiceItems"></tbody>
+        </table>
+      </div>
 
       <button id="addItem">➕ Añadir jornada</button>
 
-     <div class="summary">
-  <div><strong>Subtotal:</strong> <span id="subtotal">0.00</span>€</div>
-  <div><strong>IVA (21%):</strong> <span id="ivaAmount">0.00</span>€</div>
-  <div><strong>IRPF (15%):</strong> <span id="irpfAmount">0.00</span>€</div>
-  <div><strong>Total:</strong> <span id="grandTotal">0.00</span>€</div>
-  <div id="dietaNote" style="font-style: italic; font-size: 0.9em;"></div>
-</div>
+      <div class="summary">
+        <div><strong>Subtotal:</strong> <span id="subtotal">0.00</span>€</div>
+        <div><strong>IVA (21%):</strong> <span id="ivaAmount">0.00</span>€</div>
+        <div><strong>IRPF (15%):</strong> <span id="irpfAmount">0.00</span>€</div>
+        <div><strong>Total:</strong> <span id="grandTotal">0.00</span>€</div>
+        <div id="dietaNote" style="font-style: italic; font-size: 0.9em;"></div>
+      </div>
 
       <div class="actions">
         <button id="generatePDF">📄 Descargar PDF</button>
+        <button id="saveVersion">💾 Guardar versión</button>
+        <button id="clearHistory" class="btn-danger">🗑️ Borrar historial</button>
       </div>
+
+      <div class="version-history-bar">
+        <label for="versionHistory">Versiones guardadas:</label>
+        <select id="versionHistory">
+          <option value="">— Sin versiones guardadas —</option>
+        </select>
+        <button id="restoreVersion">↩️ Restaurar</button>
+      </div>
+
+      <div id="storageBar">
+        <div id="storageBarFill"></div>
+      </div>
+      <div id="storageLabel"></div>
+
     </div>
   </main>
 

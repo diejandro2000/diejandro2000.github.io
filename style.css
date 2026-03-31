@@ -41,11 +41,11 @@ h1 {
 .th-subtext {
   font-weight: normal;
   font-size: 0.85em;
-  color: #555; /* optional softer color */
+  color: #555;
 }
 
 main {
-  max-width: 1400px; /* wider than before */
+  max-width: 1400px;
   margin: 20px auto;
   background: var(--card-bg);
   padding: 40px 30px;
@@ -81,6 +81,10 @@ button:hover {
   opacity: 0.9;
 }
 
+button.btn-danger {
+  background: #dc3545;
+}
+
 #themeToggle {
   background: none;
   color: var(--text);
@@ -97,6 +101,56 @@ button:hover {
   display: flex;
   justify-content: flex-end;
   gap: 10px;
+  flex-wrap: wrap;
+}
+
+/* Version history row */
+.version-history-bar {
+  margin-top: 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.version-history-bar label {
+  font-size: 0.9em;
+  color: var(--text);
+}
+
+.version-history-bar select {
+  padding: 6px 10px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  background: var(--card-bg);
+  color: var(--text);
+  font-size: 0.9em;
+  min-width: 280px;
+}
+
+/* Storage bar */
+#storageBar {
+  margin-top: 14px;
+  height: 8px;
+  background: #e0e0e0;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+#storageBarFill {
+  height: 100%;
+  width: 0%;
+  background: #28a745;
+  border-radius: 4px;
+  transition: width 0.4s ease, background 0.4s ease;
+}
+
+#storageLabel {
+  margin-top: 5px;
+  font-size: 0.78em;
+  color: #888;
+  text-align: right;
 }
 
 footer {
@@ -115,7 +169,7 @@ input[type="text"], input[type="number"], input[type="date"] {
   background: none;
   border: none;
   color: #888;
-  font-size: 12px;      /* smaller icon */
+  font-size: 12px;
   cursor: pointer;
   padding: 0;
   margin-left: 3px;
@@ -127,6 +181,5 @@ input[type="text"], input[type="number"], input[type="date"] {
 .editHoras:hover,
 .editTotal:hover {
   opacity: 1;
-  color: #333;          /* slightly darker when hovered */
+  color: #333;
 }
-
