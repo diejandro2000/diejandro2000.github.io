@@ -77,11 +77,11 @@ function addItem(item = {}) {
     <td style="width:80px;"><input type="number" class="horas" value="${item.horas?.toFixed?.(2) || "0.00"}" step="0.01" style="width:60px;"></td>
 
     <td style="width:100px;">
-    <select class="uber">
+    <select class="dieta">
       <option value="0">No</option>
       <option value="1">Sí</option>
     </select>
-    <input type="number" class="uberValue" placeholder="€" value="${item.uberValue || ""}" style="display:none; width:60px; margin-left:4px;">
+    <input type="number" class="dietaValue" placeholder="€" value="${item.dietaValue || ""}" style="display:none; width:60px; margin-left:4px;">
   </td>
 
 
@@ -170,7 +170,7 @@ function calculateHours(inicio, final) {
 
 function updateTotals() {
   let subtotal = 0;
-  let uberCount = 0;
+  let dietaCount = 0;
 
   const tarifaExtra = 20;  // €/h for hours above 10
   const maxNormalHours = 10;
@@ -181,8 +181,8 @@ function updateTotals() {
     const horasInput = row.querySelector(".horas");
     const totalSpan = row.querySelector(".totalValue");
     const extraTextSpan = row.querySelector(".extraPrice");
-    const uberYes = row.querySelector(".uber")?.value === "1";
-    const uberValue = parseFloat(row.querySelector(".uberValue")?.value) || 0;
+    const dietaYes = row.querySelector(".dieta")?.value === "1";
+    const dietaValue = parseFloat(row.querySelector(".dietaValue")?.value) || 0;
     const totalInput = row.querySelector(".totalInput");
 
     // ⏱️ Recalculate hours if both start/end exist
@@ -196,14 +196,14 @@ function updateTotals() {
     const extraTotal = extraHours * tarifaExtra;
     const manualTotal = parseFloat(totalInput?.value) || 0;
 
-    // 💬 Extra lines (extra hours + Uber)
+    // 💬 Extra lines (extra hours + dieta)
     let extraLines = [];
     if (extraHours > 0) {
       extraLines.push(`+${extraTotal.toFixed(2)} € por ${extraHours.toFixed(2)} horas extra`);
     }
-    if (uberYes && uberValue > 0) {
-      extraLines.push(`+${uberValue.toFixed(2)} € Uber`);
-      uberCount++;
+    if (dietaYes && dietaValue > 0) {
+      extraLines.push(`+${dietaValue.toFixed(2)} € dieta`);
+      dietaCount++;
     }
 
     // 🪶 Show extra info below total
@@ -220,8 +220,8 @@ function updateTotals() {
     // 💰 Display base extra total
     if (totalSpan) totalSpan.textContent = `${extraTotal.toFixed(2)} €`;
 
-    // 📊 Add to subtotal (manual + extra + Uber)
-    const rowTotal = manualTotal + extraTotal + (uberYes ? uberValue : 0);
+    // 📊 Add to subtotal (manual + extra + dieta)
+    const rowTotal = manualTotal + extraTotal + (dietaYes ? dietaValue : 0);
     subtotal += rowTotal;
   });
 
@@ -344,8 +344,8 @@ function generatePDF() {
       const inicio = row.querySelector(".inicio")?.value || "";
       const final = row.querySelector(".final")?.value || "";
       const horas = parseFloat(row.querySelector(".horas")?.value) || 0;
-      const uberYes = row.querySelector(".uber")?.value === "1";
-      const uberValue = parseFloat(row.querySelector(".uberValue")?.value) || 0;
+      const dietaYes = row.querySelector(".dieta")?.value === "1";
+      const dietaValue = parseFloat(row.querySelector(".dietaValue")?.value) || 0;
       const manualTotal = parseFloat(row.querySelector(".totalInput")?.value) || 0;
 
       const lugar = lugarDropdown === "Otro" ? lugarOtro : lugarDropdown;
@@ -361,9 +361,9 @@ function generatePDF() {
         extraLines.push(`+${extraTotal.toFixed(2)} € por ${extraHours.toFixed(2)} horas extra`);
       }
 
-      if (uberYes && uberValue > 0) {
-        totalExtras += uberValue;
-        extraLines.push(`+${uberValue.toFixed(2)} € Uber`);
+      if (dietaYes && dietaValue > 0) {
+        totalExtras += dietaValue;
+        extraLines.push(`+${dietaValue.toFixed(2)} € dieta`);
       }
 
       let combinedText = manualTotal.toFixed(2) + " €";
@@ -378,7 +378,7 @@ function generatePDF() {
         inicio,
         final,
         horas.toFixed(2),
-        uberYes ? "Sí" : "No",
+        dietaYes ? "Sí" : "No",
         combinedText,
       ]);
 
@@ -386,7 +386,7 @@ function generatePDF() {
 
     doc.autoTable({
       head: [
-        ["Fecha", "Lugar de trabajo", "Actividad", "Inicio", "Final", "Horas", "Uber", "Total (€)"],
+        ["Fecha", "Lugar de trabajo", "Actividad", "Inicio", "Final", "Horas", "dieta", "Total (€)"],
       ],
       body: rows,
       startY: y + 10,
@@ -406,20 +406,20 @@ function generatePDF() {
       doc.addPage();
       finalY = 20;
     }
-    // ✅ Recalculate subtotal including Uber + Extras
+    // ✅ Recalculate subtotal including dieta + Extras
     let subtotal = 0;
     document.querySelectorAll("#invoiceItems tr").forEach((row) => {
       const horas = parseFloat(row.querySelector(".horas")?.value) || 0;
       const manualTotal = parseFloat(row.querySelector(".totalInput")?.value) || 0;
-      const uberYes = row.querySelector(".uber")?.value === "1";
-      const uberValue = parseFloat(row.querySelector(".uberValue")?.value) || 0;
+      const dietaYes = row.querySelector(".dieta")?.value === "1";
+      const dietaValue = parseFloat(row.querySelector(".dietaValue")?.value) || 0;
 
       let totalExtras = 0;
       if (horas > 10) {
         totalExtras += (horas - 10) * tarifaExtra;
       }
-      if (uberYes && uberValue > 0) {
-        totalExtras += uberValue;
+      if (dietaYes && dietaValue > 0) {
+        totalExtras += dietaValue;
       }
       subtotal += manualTotal + totalExtras;
     });
@@ -498,9 +498,9 @@ document.addEventListener("change", function(e) {
     updateTotals();
   }
 
-  // 🔹 Uber "Sí"
-  if (target.classList.contains("uber")) {
-    const valueInput = target.closest("tr").querySelector(".uberValue");
+  // 🔹 dieta "Sí"
+  if (target.classList.contains("dieta")) {
+    const valueInput = target.closest("tr").querySelector(".dietaValue");
     valueInput.style.display = target.value === "1" ? "inline-block" : "none";
     if (target.value !== "1") valueInput.value = "";
     updateTotals();
@@ -509,7 +509,7 @@ document.addEventListener("change", function(e) {
 
 // 🖊️ Update totals on typing in value fields
 document.addEventListener("input", function(e) {
-  if (e.target.classList.contains("uberValue") ||
+  if (e.target.classList.contains("dietaValue") ||
       e.target.classList.contains("totalInput") ||
       e.target.classList.contains("horas") ||
       e.target.classList.contains("inicio") ||
