@@ -378,6 +378,7 @@ function updateTotals() {
 // ─────────────────────────────────────────────
 
 function generatePDF() {
+  updateTotals(); //force latest checkbox + totals state
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
 
@@ -511,7 +512,7 @@ function generatePDF() {
       subtotal += manualTotal + totalExtras;
     });
 
-    const applyIrpf = document.getElementById("irpfToggle")?.checked ?? true;
+    const applyIrpf = document.getElementById("irpfToggle").checked === true;
     const ivaAmount = subtotal * 0.21;
     const irpfAmount = applyIrpf ? subtotal * 0.15 : 0;
     const grandTotal = subtotal + ivaAmount - irpfAmount;
