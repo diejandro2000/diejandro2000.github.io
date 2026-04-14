@@ -9,6 +9,7 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("restoreVersion").addEventListener("click", restoreVersion);
   document.getElementById("clearHistory").addEventListener("click", clearHistory);
 
+  document.getElementById("irpfToggle").addEventListener("change", updateTotals);
   loadVersionHistory();
   updateStorageBar();
 });
@@ -361,13 +362,14 @@ function updateTotals() {
     subtotal += rowTotal;
   });
 
+  const applyIrpf = document.getElementById("irpfToggle")?.checked ?? true;
   const ivaAmount = subtotal * 0.21;
-  const irpfAmount = subtotal * 0.15;
+  const irpfAmount = applyIrpf ? subtotal * 0.15 : 0;
   const grandTotal = subtotal + ivaAmount - irpfAmount;
 
   document.getElementById("subtotal").textContent = subtotal.toFixed(2);
   document.getElementById("ivaAmount").textContent = ivaAmount.toFixed(2);
-  document.getElementById("irpfAmount").textContent = irpfAmount.toFixed(2);
+  document.getElementById("irpfAmount").textContent = applyIrpf ? irpfAmount.toFixed(2) : "—";
   document.getElementById("grandTotal").textContent = grandTotal.toFixed(2);
 }
 
@@ -509,15 +511,18 @@ function generatePDF() {
       subtotal += manualTotal + totalExtras;
     });
 
+    const applyIrpf = document.getElementById("irpfToggle")?.checked ?? true;
     const ivaAmount = subtotal * 0.21;
-    const irpfAmount = subtotal * 0.15;
+    const irpfAmount = applyIrpf ? subtotal * 0.15 : 0;
     const grandTotal = subtotal + ivaAmount - irpfAmount;
 
     doc.setFont("helvetica", "normal");
     doc.setFontSize(11);
     doc.text(`Subtotal: ${subtotal.toFixed(2)} €`, 140, finalY);
     doc.text(`IVA (21%): ${ivaAmount.toFixed(2)} €`, 140, finalY + 6);
-    doc.text(`IRPF (15%): ${irpfAmount.toFixed(2)} €`, 140, finalY + 12);
+    if (applyIrpf) {
+      doc.text(`IRPF (15%): ${irpfAmount.toFixed(2)} €`, 140, finalY + 12);
+    }
     doc.setFont("helvetica", "bold");
     doc.text(`Total: ${grandTotal.toFixed(2)} €`, 140, finalY + 18);
 
