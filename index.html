@@ -14,12 +14,35 @@
   <main>
     <div id="invoice-form">
       <label for="clientSelect">Seleccionar cliente:</label>
-      <select id="clientSelect">
-        <option value="DOS40">DOS40</option>
-        <option value="nologo">NOX AUDIOVISUALES S.L</option>
-        <option value="Lopezgarcia">LÓPEZ GARCÍA SONORIZACIONES S.L.</option>
-        <option value="angelica">Angélica Uceda García</option>
-      </select>
+      <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+        <select id="clientSelect"></select>
+        <button id="manageClients" title="Añadir o editar clientes">👤 Gestionar clientes</button>
+      </div>
+
+      <!-- Client Manager Modal -->
+      <div id="clientModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:1000; align-items:center; justify-content:center;">
+        <div id="clientModalBox" style="background:var(--card-bg); color:var(--text); border-radius:10px; padding:30px; width:min(560px,95vw); max-height:85vh; overflow-y:auto; box-shadow:0 8px 32px rgba(0,0,0,0.3);">
+          <h2 style="margin-top:0;">👤 Gestionar clientes</h2>
+
+          <!-- List of existing clients -->
+          <div id="clientList" style="margin-bottom:20px;"></div>
+
+          <!-- Add / Edit form -->
+          <h3 id="clientFormTitle" style="margin-bottom:8px;">➕ Añadir nuevo cliente</h3>
+          <div style="display:grid; gap:8px;">
+            <input type="hidden" id="editClientKey">
+            <input type="text" id="newClientLabel" placeholder="Nombre en el desplegable (ej: Mi Empresa)" style="width:100%; box-sizing:border-box;">
+            <input type="text" id="newClientName"  placeholder="Nombre completo para la factura"        style="width:100%; box-sizing:border-box;">
+            <input type="text" id="newClientAddr"  placeholder="Dirección"                              style="width:100%; box-sizing:border-box;">
+            <input type="text" id="newClientNIF"   placeholder="NIF / CIF"                              style="width:100%; box-sizing:border-box;">
+            <div style="display:flex; gap:8px; justify-content:flex-end; flex-wrap:wrap;">
+              <button id="saveClient">💾 Guardar cliente</button>
+              <button id="cancelEditClient" style="display:none; background:#6c757d;">✖ Cancelar edición</button>
+              <button id="closeClientModal" style="background:#6c757d;">✖ Cerrar</button>
+            </div>
+          </div>
+        </div>
+      </div>
       <input type="text" id="invoiceNumber" placeholder="Número de factura" required>
       <input type="date" id="invoiceDate">
 

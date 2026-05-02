@@ -159,6 +159,25 @@ footer {
   color: gray;
 }
 
+/* Client manager modal */
+#clientModal {
+  display: none;
+}
+
+#clientModalBox h2 {
+  font-size: 1.3em;
+  border-bottom: 2px solid var(--accent);
+  padding-bottom: 8px;
+}
+
+#clientList div {
+  transition: background 0.15s;
+}
+
+#clientList div:hover {
+  background: rgba(0,0,0,0.04);
+}
+
 input[type="text"], input[type="number"], input[type="date"] {
   padding: 6px;
   border: 1px solid #ccc;
