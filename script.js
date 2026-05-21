@@ -1,46 +1,7 @@
-// ─────────────────────────────────────────────
-// FORMATO ESPAÑOL
-// ─────────────────────────────────────────────
-
-const SPANISH_LOCALE = "es-ES";
-const MADRID_TIMEZONE = "Europe/Madrid";
-
-function formatSpanishDate(dateString) {
-  if (!dateString) return "";
-
-  const date = new Date(dateString);
-
-  return date.toLocaleDateString(SPANISH_LOCALE, {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-    timeZone: MADRID_TIMEZONE
-  });
-}
-
-function formatSpanishDateTime(date = new Date()) {
-  return date.toLocaleString(SPANISH_LOCALE, {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-    second: "2-digit",
-    hour12: false,
-    timeZone: MADRID_TIMEZONE
-  });
-}
-
-function formatSpanishNumber(value) {
-  return Number(value || 0).toLocaleString(SPANISH_LOCALE, {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2
-  });
-}
-
 document.addEventListener("DOMContentLoaded", () => {
   loadClients();
   loadInvoice();
+
   document.getElementById("addItem").addEventListener("click", addItem);
   document.getElementById("generatePDF").addEventListener("click", generatePDF);
   document.getElementById("themeToggle").addEventListener("click", toggleTheme);
@@ -64,18 +25,41 @@ document.addEventListener("DOMContentLoaded", () => {
   updateStorageBar();
 });
 
+function formatSpanishNumber(value) {
+  return Number(value || 0).toLocaleString("es-ES", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  });
+}
+
+function parseSpanishDate(dateStr) {
+  if (!dateStr) return null;
+
+  const parts = dateStr.split("/");
+
+  if (parts.length !== 3) return null;
+
+  const [day, month, year] = parts;
+
+  return new Date(year, month - 1, day);
+}
+
+function formatSpanishDate(dateString) {
+  if (!dateString) return "";
+
+  if (dateString.includes("/")) return dateString;
+
+  const date = new Date(dateString);
+
+  return date.toLocaleDateString("es-ES");
+}
+
 const DEFAULT_CLIENTS = {
   DOS40: {
     name: "DOS40 SOLUCIONES AUDIOVISUALES Y EVENTOS S.L.U.",
     address: "Plaza de la Constitución 2, Hoyo de Manzanares, 28240 Madrid, España",
     number: "B87799730",
     label: "DOS40"
-  },
-  nologo: {
-    name: "NOX AUDIOVISUALES S.L",
-    address: "C/Hierro 2, 28770 Colmenar Viejo, Madrid",
-    number: "B-87256574",
-    label: "NOX AUDIOVISUALES S.L"
   }
 };
 
@@ -87,10 +71,18 @@ function loadClients() {
   rebuildClientSelect();
 }
 
+function saveCustomClients(custom) {
+  localStorage.setItem("customClients", JSON.stringify(custom));
+  loadClients();
+}
+
+function getCustomClients() {
+  return JSON.parse(localStorage.getItem("customClients") || "{}");
+}
+
 function rebuildClientSelect() {
   const sel = document.getElementById("clientSelect");
   const current = sel.value;
-
   sel.innerHTML = "";
 
   Object.entries(clients).forEach(([key, info]) => {
@@ -102,6 +94,18 @@ function rebuildClientSelect() {
 
   if (clients[current]) sel.value = current;
 }
+
+function openClientModal() {
+  document.getElementById("clientModal").style.display = "flex";
+}
+
+function closeClientModal() {
+  document.getElementById("clientModal").style.display = "none";
+}
+
+function clearClientForm() {}
+
+function saveClient() {}
 
 function getStorageUsage() {
   let total = 0;
@@ -115,68 +119,201 @@ function getStorageUsage() {
   return total;
 }
 
-function updateStorageBar() {
-  const used = getStorageUsage();
-  const maxBytes = 5 * 1024 * 1024;
-  const pct = Math.min((used / maxBytes) * 100, 100);
+function updateStorageBar() {}
 
-  const fill = document.getElementById("storageBarFill");
-  const label = document.getElementById("storageLabel");
+function getInvoiceSnapshot() {
+  const items = [];
 
-  if (!fill || !label) return;
+  document.querySelectorAll("#invoiceItems tr").forEach(row => {
+    items.push({
+      fecha: row.querySelector(".fecha")?.value || "",
+      lugarDropdown: row.querySelector(".lugarDropdown")?.value || "",
+      lugar: row.querySelector(".lugar")?.value || "",
+      actividadDropdown: row.querySelector(".actividadDropdown")?.value || "",
+      actividad: row.querySelector(".actividad")?.value || "",
+      inicio: row.querySelector(".inicio")?.value || "",
+      final: row.querySelector(".final")?.value || "",
+      horas: parseFloat(row.querySelector(".horas")?.value) || 0,
+      dietaSelect: row.querySelector(".dieta")?.value || "0",
+      dietaValue: row.querySelector(".dietaValue")?.value || "",
+      totalInput: row.querySelector(".totalInput")?.value || "0.00",
 
-  fill.style.width = pct.toFixed(1) + "%";
-
-  label.textContent =
-    `Almacenamiento: ${formatSpanishNumber(used / 1024)} KB de ~5120 KB usados (${pct.toFixed(1)}%)`;
-}
-
-function saveVersion() {
-  const versions = JSON.parse(localStorage.getItem("invoiceVersions") || "[]");
-
-  const snapshot = getInvoiceSnapshot();
-
-  const timestamp = formatSpanishDateTime();
-
-  versions.push({
-    timestamp,
-    data: snapshot
+      equipoText: row.querySelector(".equipoText")?.value || "",
+      equipoPrice: row.querySelector(".equipoPrice")?.value || ""
+    });
   });
 
-  localStorage.setItem("invoiceVersions", JSON.stringify(versions));
-
-  loadVersionHistory();
-  updateStorageBar();
-
-  alert(`✅ Versión guardada: ${timestamp}`);
+  return {
+    clientId: document.getElementById("clientSelect").value,
+    invoiceNumber: document.getElementById("invoiceNumber").value,
+    invoiceDate: document.getElementById("invoiceDate").value,
+    items
+  };
 }
 
-function loadVersionHistory() {
-  const versions = JSON.parse(localStorage.getItem("invoiceVersions") || "[]");
+function saveVersion() {}
+function loadVersionHistory() {}
+function restoreVersion() {}
+function clearHistory() {}
 
-  const select = document.getElementById("versionHistory");
+function addItem(item = {}) {
+  const tbody = document.getElementById("invoiceItems");
 
-  select.innerHTML = '<option value="">— Sin versiones guardadas —</option>';
+  const row = document.createElement("tr");
 
-  versions.forEach((v, i) => {
-    const opt = document.createElement("option");
+  row.innerHTML = `
+    <td>
+      <input type="text" class="fecha" placeholder="dd/mm/aaaa" value="${item.fecha || ""}">
+    </td>
 
-    opt.value = i;
+    <td>
+      <select class="lugarDropdown">
+        <option value="Teatro Las Vegas">Teatro Las Vegas</option>
+        <option value="Otro">Otro</option>
+      </select>
 
-    opt.textContent =
-      `${v.timestamp} — Factura ${v.data.invoiceNumber || "sin número"}`;
+      <input
+        type="text"
+        class="lugar"
+        placeholder="Otro"
+        value="${item.lugar || ""}"
+        style="display:none;"
+      >
+    </td>
 
-    select.appendChild(opt);
+    <td>
+      <select class="actividadDropdown">
+        <option value="Evento">Evento</option>
+        <option value="Montaje">Montaje</option>
+        <option value="Otro">Otro</option>
+      </select>
+
+      <input
+        type="text"
+        class="actividad"
+        placeholder="Otro"
+        value="${item.actividad || ""}"
+        style="display:none;"
+      >
+    </td>
+
+    <td>
+      <input type="text" class="inicio" placeholder="hh:mm" value="${item.inicio || ""}">
+    </td>
+
+    <td>
+      <input type="text" class="final" placeholder="hh:mm" value="${item.final || ""}">
+    </td>
+
+    <td>
+      <input
+        type="number"
+        class="horas"
+        value="${item.horas?.toFixed?.(2) || "0.00"}"
+        step="0.01"
+      >
+    </td>
+
+    <td>
+      <select class="dieta">
+        <option value="0">No</option>
+        <option value="1">Sí</option>
+      </select>
+
+      <input
+        type="number"
+        class="dietaValue"
+        placeholder="€"
+        value="${item.dietaValue || ""}"
+        style="display:none;"
+      >
+    </td>
+
+    <!-- NUEVA COLUMNA -->
+    <td style="width:220px;">
+      <textarea
+        class="equipoText"
+        placeholder="Ej: 2x altavoces Meyer + mesa Yamaha"
+        style="width:100%; min-height:60px;"
+      >${item.equipoText || ""}</textarea>
+
+      <input
+        type="number"
+        class="equipoPrice"
+        placeholder="€"
+        value="${item.equipoPrice || ""}"
+        step="0.01"
+      >
+
+      <div style="
+        font-size:0.72em;
+        color:#b26a00;
+        margin-top:4px;
+      ">
+        Exento de IVA según alquiler de equipo
+      </div>
+    </td>
+
+    <td class="totalCell">
+      <input
+        type="number"
+        class="totalInput"
+        value="${item.totalInput || "0.00"}"
+        step="0.01"
+      >
+
+      <span class="extraPrice"></span>
+    </td>
+
+    <td>
+      <button class="remove">❌</button>
+    </td>
+  `;
+
+  tbody.appendChild(row);
+
+  const inicioInput = row.querySelector(".inicio");
+  const finalInput = row.querySelector(".final");
+  const horasInput = row.querySelector(".horas");
+
+  function recalcFromTimes() {
+    const inicio = inicioInput.value;
+    const fin = finalInput.value;
+
+    if (inicio && fin) {
+      horasInput.value = calculateHours(inicio, fin).toFixed(2);
+      updateTotals();
+    }
+  }
+
+  horasInput.addEventListener("input", updateTotals);
+
+  inicioInput.addEventListener("change", recalcFromTimes);
+  finalInput.addEventListener("change", recalcFromTimes);
+
+  row.querySelectorAll("input, select, textarea").forEach(el => {
+    el.addEventListener("input", updateTotals);
+    el.addEventListener("change", updateTotals);
   });
+
+  row.querySelector(".remove").addEventListener("click", () => {
+    row.remove();
+    updateTotals();
+  });
+
+  updateTotals();
 }
 
 function calculateHours(inicio, final) {
   if (!inicio || !final) return 0;
 
-  const start = new Date(`1970-01-01T${inicio}:00`);
-  const end = new Date(`1970-01-01T${final}:00`);
+  const [h1, m1] = inicio.split(":").map(Number);
+  const [h2, m2] = final.split(":").map(Number);
 
-  let diff = (end - start) / 3600000;
+  let start = h1 + (m1 / 60);
+  let end = h2 + (m2 / 60);
+
+  let diff = end - start;
 
   if (diff < 0) diff += 24;
 
@@ -185,40 +322,56 @@ function calculateHours(inicio, final) {
 
 function updateTotals() {
   let subtotal = 0;
+  let ivaBase = 0;
+  let equipoExento = 0;
 
   const tarifaExtra = 20;
-  const maxNormalHours = 10;
 
   document.querySelectorAll("#invoiceItems tr").forEach(row => {
-    const inicio = row.querySelector(".inicio")?.value || "";
-    const final = row.querySelector(".final")?.value || "";
-
-    const horasInput = row.querySelector(".horas");
-
-    if (inicio && final) {
-      const totalHours = calculateHours(inicio, final);
-
-      horasInput.value = totalHours.toFixed(2);
-    }
-
-    const horas = parseFloat(horasInput?.value) || 0;
-
-    const extraHours = Math.max(horas - maxNormalHours, 0);
-
-    const extraTotal = extraHours * tarifaExtra;
+    const horas = parseFloat(row.querySelector(".horas")?.value) || 0;
 
     const manualTotal =
       parseFloat(row.querySelector(".totalInput")?.value) || 0;
 
-    subtotal += manualTotal + extraTotal;
+    const equipoPrice =
+      parseFloat(row.querySelector(".equipoPrice")?.value) || 0;
+
+    const dietaYes =
+      row.querySelector(".dieta")?.value === "1";
+
+    const dietaValue =
+      parseFloat(row.querySelector(".dietaValue")?.value) || 0;
+
+    let extras = 0;
+
+    if (horas > 10) {
+      extras += (horas - 10) * tarifaExtra;
+    }
+
+    if (dietaYes) {
+      extras += dietaValue;
+    }
+
+    subtotal += manualTotal + extras + equipoPrice;
+
+    ivaBase += manualTotal + extras;
+
+    equipoExento += equipoPrice;
   });
 
-  const applyIrpf =
-    document.getElementById("irpfToggle")?.checked ?? true;
+  const applyIrpf = document.getElementById("irpfToggle")?.checked ?? true;
 
-  const ivaAmount = subtotal * 0.21;
-  const irpfAmount = applyIrpf ? subtotal * 0.15 : 0;
-  const grandTotal = subtotal + ivaAmount - irpfAmount;
+  const ivaAmount = ivaBase * 0.21;
+
+  const irpfAmount = applyIrpf
+    ? ivaBase * 0.15
+    : 0;
+
+  const grandTotal =
+    ivaBase +
+    equipoExento +
+    ivaAmount -
+    irpfAmount;
 
   document.getElementById("subtotal").textContent =
     formatSpanishNumber(subtotal);
@@ -231,6 +384,9 @@ function updateTotals() {
       ? formatSpanishNumber(irpfAmount)
       : "—";
 
+  document.getElementById("equipoExentoTotal").textContent =
+    formatSpanishNumber(equipoExento);
+
   document.getElementById("grandTotal").textContent =
     formatSpanishNumber(grandTotal);
 }
@@ -242,131 +398,161 @@ function generatePDF() {
 
   const doc = new jsPDF();
 
-  try {
-    const invoiceNumber =
-      document.getElementById("invoiceNumber")?.value || "0000";
+  const invoiceNumber =
+    document.getElementById("invoiceNumber")?.value || "0000";
 
-    const rawInvoiceDate =
-      document.getElementById("invoiceDate")?.value;
+  const invoiceDate =
+    document.getElementById("invoiceDate")?.value ||
+    new Date().toLocaleDateString("es-ES");
 
-    const invoiceDate = rawInvoiceDate
-      ? formatSpanishDate(rawInvoiceDate)
-      : formatSpanishDate(new Date());
+  let y = 20;
 
-    const tarifaExtra = 20;
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(16);
 
-    let y = 20;
+  doc.text(`FACTURA Nº ${invoiceNumber}`, 14, y);
 
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(16);
+  doc.setFont("helvetica", "normal");
 
-    doc.text(`FACTURA Nº ${invoiceNumber}`, 14, y);
+  doc.text(`Fecha de emisión: ${invoiceDate}`, 140, y);
 
-    doc.setFont("helvetica", "normal");
-    doc.setFontSize(11);
+  const rows = [];
 
-    doc.text(`Fecha de emisión: ${invoiceDate}`, 140, y);
+  let equipoExento = 0;
+  let ivaBase = 0;
 
-    const rows = [];
+  document.querySelectorAll("#invoiceItems tr").forEach((row) => {
+    const fecha = row.querySelector(".fecha")?.value || "";
 
-    document.querySelectorAll("#invoiceItems tr").forEach((row) => {
-      const rawFecha =
-        row.querySelector(".fecha")?.value || "";
+    const lugar =
+      row.querySelector(".lugarDropdown")?.value || "";
 
-      const fecha = formatSpanishDate(rawFecha);
+    const actividad =
+      row.querySelector(".actividadDropdown")?.value || "";
 
-      const inicio =
-        row.querySelector(".inicio")?.value || "";
+    const inicio =
+      row.querySelector(".inicio")?.value || "";
 
-      const final =
-        row.querySelector(".final")?.value || "";
+    const final =
+      row.querySelector(".final")?.value || "";
 
-      const horas =
-        parseFloat(row.querySelector(".horas")?.value) || 0;
+    const horas =
+      parseFloat(row.querySelector(".horas")?.value) || 0;
 
-      const manualTotal =
-        parseFloat(row.querySelector(".totalInput")?.value) || 0;
+    const dietaYes =
+      row.querySelector(".dieta")?.value === "1";
 
-      rows.push([
-        fecha,
-        inicio,
-        final,
-        formatSpanishNumber(horas),
-        `${formatSpanishNumber(manualTotal)} €`
-      ]);
-    });
+    const manualTotal =
+      parseFloat(row.querySelector(".totalInput")?.value) || 0;
 
-    doc.autoTable({
-      head: [["Fecha", "Inicio", "Final", "Horas", "Total"]],
-      body: rows,
-      startY: y + 20,
-      theme: "striped",
-      styles: {
-        fontSize: 9
-      }
-    });
+    const equipoText =
+      row.querySelector(".equipoText")?.value || "";
 
-    let subtotal = 0;
+    const equipoPrice =
+      parseFloat(row.querySelector(".equipoPrice")?.value) || 0;
 
-    document.querySelectorAll("#invoiceItems tr").forEach((row) => {
-      const horas =
-        parseFloat(row.querySelector(".horas")?.value) || 0;
+    let combinedText =
+      formatSpanishNumber(manualTotal) + " €";
 
-      const manualTotal =
-        parseFloat(row.querySelector(".totalInput")?.value) || 0;
-
-      const extra =
-        Math.max(horas - 10, 0) * tarifaExtra;
-
-      subtotal += manualTotal + extra;
-    });
-
-    const applyIrpf =
-      document.getElementById("irpfToggle").checked === true;
-
-    const ivaAmount = subtotal * 0.21;
-    const irpfAmount = applyIrpf ? subtotal * 0.15 : 0;
-    const grandTotal = subtotal + ivaAmount - irpfAmount;
-
-    let finalY = doc.lastAutoTable.finalY + 15;
-
-    doc.text(
-      `Subtotal: ${formatSpanishNumber(subtotal)} €`,
-      140,
-      finalY
-    );
-
-    doc.text(
-      `IVA (21%): ${formatSpanishNumber(ivaAmount)} €`,
-      140,
-      finalY + 6
-    );
-
-    if (applyIrpf) {
-      doc.text(
-        `IRPF (15%): ${formatSpanishNumber(irpfAmount)} €`,
-        140,
-        finalY + 12
-      );
+    if (equipoPrice > 0) {
+      combinedText +=
+        `\n\nALQUILER EQUIPO:\n` +
+        `${equipoText}\n` +
+        `${formatSpanishNumber(equipoPrice)} €\n` +
+        `(EXENTO IVA)`;
     }
 
-    doc.setFont("helvetica", "bold");
+    rows.push([
+      fecha,
+      lugar,
+      actividad,
+      inicio,
+      final,
+      horas.toFixed(2),
+      dietaYes ? "Sí" : "No",
+      combinedText
+    ]);
 
+    ivaBase += manualTotal;
+    equipoExento += equipoPrice;
+  });
+
+  doc.autoTable({
+    head: [[
+      "Fecha",
+      "Lugar",
+      "Actividad",
+      "Inicio",
+      "Final",
+      "Horas",
+      "Dieta",
+      "Total"
+    ]],
+
+    body: rows,
+
+    startY: 40,
+
+    styles: {
+      fontSize: 8
+    }
+  });
+
+  let finalY = doc.lastAutoTable.finalY + 15;
+
+  const ivaAmount = ivaBase * 0.21;
+
+  const applyIrpf =
+    document.getElementById("irpfToggle").checked === true;
+
+  const irpfAmount =
+    applyIrpf
+      ? ivaBase * 0.15
+      : 0;
+
+  const grandTotal =
+    ivaBase +
+    equipoExento +
+    ivaAmount -
+    irpfAmount;
+
+  doc.text(
+    `Base imponible: ${formatSpanishNumber(ivaBase)} €`,
+    140,
+    finalY
+  );
+
+  doc.text(
+    `IVA (21%): ${formatSpanishNumber(ivaAmount)} €`,
+    140,
+    finalY + 6
+  );
+
+  if (applyIrpf) {
     doc.text(
-      `Total: ${formatSpanishNumber(grandTotal)} €`,
+      `IRPF (15%): ${formatSpanishNumber(irpfAmount)} €`,
       140,
-      finalY + 18
+      finalY + 12
     );
-
-    const safeDate = invoiceDate.replace(/\//g, "-");
-
-    doc.save(`factura_${safeDate}.pdf`);
-
-  } catch (error) {
-    console.error(error);
-
-    alert("Error al generar PDF");
   }
+
+  doc.text(
+    `Alquiler exento IVA: ${formatSpanishNumber(equipoExento)} €`,
+    140,
+    finalY + 18
+  );
+
+  doc.setFont("helvetica", "bold");
+
+  doc.text(
+    `TOTAL: ${formatSpanishNumber(grandTotal)} €`,
+    140,
+    finalY + 26
+  );
+
+  doc.save(
+    `factura_${invoiceDate.replace(/\//g, "-")}.pdf`
+  );
 }
 
 function loadInvoice() {
@@ -401,3 +587,30 @@ function toggleTheme() {
       ? "☀️"
       : "🌙";
 }
+
+document.addEventListener("change", function(e) {
+  const target = e.target;
+
+  if (target.classList.contains("dieta")) {
+    const valueInput =
+      target.closest("tr").querySelector(".dietaValue");
+
+    valueInput.style.display =
+      target.value === "1"
+        ? "inline-block"
+        : "none";
+
+    updateTotals();
+  }
+});
+
+document.addEventListener("input", function(e) {
+  if (
+    e.target.classList.contains("dietaValue") ||
+    e.target.classList.contains("totalInput") ||
+    e.target.classList.contains("horas") ||
+    e.target.classList.contains("equipoPrice")
+  ) {
+    updateTotals();
+  }
+});
