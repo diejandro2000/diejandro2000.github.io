@@ -168,6 +168,7 @@ button.btn-danger {
 /* Client manager modal */
 #clientModal {
   display: none;
+  pointer-events: none;
 }
 
 #clientModalBox h2 {

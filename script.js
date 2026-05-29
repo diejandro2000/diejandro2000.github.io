@@ -91,11 +91,15 @@ function rebuildClientSelect() {
 function openClientModal() {
   renderClientList();
   clearClientForm();
-  document.getElementById("clientModal").style.display = "flex";
+  const modal = document.getElementById("clientModal");
+  modal.style.display = "flex";
+  modal.style.pointerEvents = "auto";
 }
 
 function closeClientModal() {
-  document.getElementById("clientModal").style.display = "none";
+  const modal = document.getElementById("clientModal");
+  modal.style.display = "none";
+  modal.style.pointerEvents = "none";
 }
 
 function renderClientList() {
@@ -869,7 +873,9 @@ document.addEventListener("input", function(e) {
     e.target.classList.contains("totalInput") ||
     e.target.classList.contains("horas") ||
     e.target.classList.contains("inicio") ||
-    e.target.classList.contains("final")
+    e.target.classList.contains("final") ||
+    e.target.classList.contains("equipoPrecio") ||
+    e.target.classList.contains("equipoDesc")
   ) {
     updateTotals();
   }
