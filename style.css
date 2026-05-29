@@ -153,11 +153,17 @@ button.btn-danger {
   text-align: right;
 }
 
-footer {
-  text-align: center;
-  margin: 20px 0;
-  color: gray;
+/* Equipo alquilado table */
+#equipoTable {
+  margin-top: 8px;
 }
+
+#equipoTable th {
+  background: #3d6b3d;
+  color: #fff;
+}
+
+
 
 /* Client manager modal */
 #clientModal {

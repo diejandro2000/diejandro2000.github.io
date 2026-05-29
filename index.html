@@ -66,10 +66,27 @@
 
       <button id="addItem">➕ Añadir jornada</button>
 
+      <!-- Equipo alquilado -->
+      <h3 style="margin-top:30px; margin-bottom:6px;">🎛️ Equipo alquilado <span style="font-weight:normal; font-size:0.8em; color:#888;">(exento de IVA)</span></h3>
+      <div class="table-container">
+        <table id="equipoTable">
+          <thead>
+            <tr>
+              <th>Material / Descripción</th>
+              <th>Precio (€)</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="equipoItems"></tbody>
+        </table>
+      </div>
+      <button id="addEquipo">➕ Añadir equipo</button>
+
       <div class="summary">
-        <div><strong>Subtotal:</strong> <span id="subtotal">0.00</span>€</div>
+        <div><strong>Subtotal servicios:</strong> <span id="subtotal">0.00</span>€</div>
         <div><strong>IVA (21%):</strong> <span id="ivaAmount">0.00</span>€</div>
         <div><label style="font-weight:normal; cursor:pointer;"><input type="checkbox" id="irpfToggle" checked> <strong>IRPF (15%):</strong></label> <span id="irpfAmount">0.00</span>€</div>
+        <div><strong>Equipo alquilado (exento IVA):</strong> <span id="equipoTotal">0.00</span>€</div>
         <div><strong>Total:</strong> <span id="grandTotal">0.00</span>€</div>
         <div id="dietaNote" style="font-style: italic; font-size: 0.9em;"></div>
       </div>

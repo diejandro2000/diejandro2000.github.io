@@ -2,6 +2,7 @@ document.addEventListener("DOMContentLoaded", () => {
   loadClients();
   loadInvoice();
   document.getElementById("addItem").addEventListener("click", addItem);
+  document.getElementById("addEquipo").addEventListener("click", () => addEquipoItem());
   document.getElementById("generatePDF").addEventListener("click", generatePDF);
   document.getElementById("themeToggle").addEventListener("click", toggleTheme);
 
@@ -205,8 +206,45 @@ function saveClient() {
 }
 
 // ─────────────────────────────────────────────
-//  VERSION HISTORY
+//  DATE / TIME FORMATTING (Spanish locale)
 // ─────────────────────────────────────────────
+
+function formatDateES(isoDate) {
+  if (!isoDate) return "";
+  const [y, m, d] = isoDate.split("-");
+  return `${d}/${m}/${y}`;
+}
+
+function formatTimeES(timeStr) {
+  if (!timeStr) return "";
+  // timeStr is HH:MM (from <input type="time">)
+  return timeStr.substring(0, 5); // already HH:MM; ensure no seconds
+}
+
+// ─────────────────────────────────────────────
+//  EQUIPO ALQUILADO
+// ─────────────────────────────────────────────
+
+function addEquipoItem(item = {}) {
+  const tbody = document.getElementById("equipoItems");
+  const row = document.createElement("tr");
+  row.innerHTML = `
+    <td><input type="text" class="equipoDesc" placeholder="Descripción del material" value="${item.desc || ""}" style="width:100%; box-sizing:border-box;"></td>
+    <td style="width:120px;"><input type="number" class="equipoPrecio" placeholder="0.00" value="${item.precio || ""}" step="0.01" min="0" style="width:90px;"></td>
+    <td style="width:30px;"><button class="removeEquipo">❌</button></td>
+  `;
+  tbody.appendChild(row);
+  row.querySelector(".removeEquipo").addEventListener("click", () => {
+    row.remove();
+    updateTotals();
+  });
+  row.querySelectorAll("input").forEach(el => {
+    el.addEventListener("input", updateTotals);
+  });
+  updateTotals();
+}
+
+
 
 function getStorageUsage() {
   let total = 0;
@@ -267,11 +305,20 @@ function getInvoiceSnapshot() {
     });
   });
 
+  const equipoItems = [];
+  document.querySelectorAll("#equipoItems tr").forEach(row => {
+    equipoItems.push({
+      desc: row.querySelector(".equipoDesc")?.value || "",
+      precio: row.querySelector(".equipoPrecio")?.value || ""
+    });
+  });
+
   return {
     clientId: document.getElementById("clientSelect").value,
     invoiceNumber: document.getElementById("invoiceNumber").value,
     invoiceDate: document.getElementById("invoiceDate").value,
-    items
+    items,
+    equipoItems
   };
 }
 
@@ -324,7 +371,9 @@ function restoreVersion() {
   document.getElementById("invoiceNumber").value = snapshot.invoiceNumber || "";
   document.getElementById("invoiceDate").value = snapshot.invoiceDate || "";
   document.getElementById("invoiceItems").innerHTML = "";
+  document.getElementById("equipoItems").innerHTML = "";
   (snapshot.items || []).forEach(item => addItem(item));
+  (snapshot.equipoItems || []).forEach(item => addEquipoItem(item));
   updateTotals();
   alert(`↩️ Versión restaurada: ${versions[index].timestamp}`);
 }
@@ -532,11 +581,18 @@ function updateTotals() {
   const applyIrpf = document.getElementById("irpfToggle")?.checked ?? true;
   const ivaAmount = subtotal * 0.21;
   const irpfAmount = applyIrpf ? subtotal * 0.15 : 0;
-  const grandTotal = subtotal + ivaAmount - irpfAmount;
+
+  let equipoSubtotal = 0;
+  document.querySelectorAll("#equipoItems tr").forEach(row => {
+    equipoSubtotal += parseFloat(row.querySelector(".equipoPrecio")?.value) || 0;
+  });
+
+  const grandTotal = subtotal + ivaAmount - irpfAmount + equipoSubtotal;
 
   document.getElementById("subtotal").textContent = subtotal.toFixed(2);
   document.getElementById("ivaAmount").textContent = ivaAmount.toFixed(2);
   document.getElementById("irpfAmount").textContent = applyIrpf ? irpfAmount.toFixed(2) : "—";
+  document.getElementById("equipoTotal").textContent = equipoSubtotal.toFixed(2);
   document.getElementById("grandTotal").textContent = grandTotal.toFixed(2);
 }
 
@@ -551,7 +607,8 @@ function generatePDF() {
 
   try {
     const invoiceNumber = document.getElementById("invoiceNumber")?.value || "0000";
-    const invoiceDate = document.getElementById("invoiceDate")?.value || new Date().toLocaleDateString();
+    const invoiceDateRaw = document.getElementById("invoiceDate")?.value || "";
+    const invoiceDate = formatDateES(invoiceDateRaw) || new Date().toLocaleDateString("es-ES");
     const tarifaExtra = 20;
 
     let y = 20;
@@ -611,13 +668,13 @@ function generatePDF() {
     // Build table rows
     const rows = [];
     document.querySelectorAll("#invoiceItems tr").forEach((row) => {
-      const fecha = row.querySelector(".fecha")?.value || "";
+      const fecha = formatDateES(row.querySelector(".fecha")?.value || "");
       const lugarDropdown = row.querySelector(".lugarDropdown")?.value || "";
       const lugarOtro = row.querySelector(".lugar")?.value || "";
       const actividadDropdown = row.querySelector(".actividadDropdown")?.value || "";
       const actividadOtro = row.querySelector(".actividad")?.value || "";
-      const inicio = row.querySelector(".inicio")?.value || "";
-      const final = row.querySelector(".final")?.value || "";
+      const inicio = formatTimeES(row.querySelector(".inicio")?.value || "");
+      const final = formatTimeES(row.querySelector(".final")?.value || "");
       const horas = parseFloat(row.querySelector(".horas")?.value) || 0;
       const dietaYes = row.querySelector(".dieta")?.value === "1";
       const dietaValue = parseFloat(row.querySelector(".dietaValue")?.value) || 0;
@@ -659,13 +716,8 @@ function generatePDF() {
       showHead: "everyPage",
     });
 
-    // Totals — add new page if not enough space
+    // Totals — space check now handled in equipo section below
     let finalY = doc.lastAutoTable.finalY + 10;
-    const pageHeight = doc.internal.pageSize.getHeight();
-    if (finalY + 30 > pageHeight - 20) {
-      doc.addPage();
-      finalY = 20;
-    }
 
     let subtotal = 0;
     document.querySelectorAll("#invoiceItems tr").forEach((row) => {
@@ -679,22 +731,74 @@ function generatePDF() {
       subtotal += manualTotal + totalExtras;
     });
 
+    // Collect equipo alquilado rows
+    const equipoRows = [];
+    let equipoSubtotal = 0;
+    document.querySelectorAll("#equipoItems tr").forEach((row) => {
+      const desc = row.querySelector(".equipoDesc")?.value || "";
+      const precio = parseFloat(row.querySelector(".equipoPrecio")?.value) || 0;
+      if (desc || precio) {
+        equipoRows.push([desc, precio.toFixed(2) + " €"]);
+        equipoSubtotal += precio;
+      }
+    });
+
+    // Add equipo alquilado table if any rows exist
+    let equipoTableEndY = doc.lastAutoTable.finalY + 10;
+    if (equipoRows.length > 0) {
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(11);
+      doc.text("Equipo alquilado (exento de IVA)", 14, equipoTableEndY);
+      doc.autoTable({
+        head: [["Material / Descripción", "Precio (€)"]],
+        body: equipoRows,
+        startY: equipoTableEndY + 4,
+        theme: "striped",
+        headStyles: { fillColor: [80, 120, 80], textColor: 255 },
+        styles: { fontSize: 8, cellPadding: 2 },
+        tableWidth: "auto",
+        columnStyles: { 1: { halign: "right" } },
+      });
+      equipoTableEndY = doc.lastAutoTable.finalY + 6;
+
+      doc.setFont("helvetica", "italic");
+      doc.setFontSize(9);
+      doc.setTextColor(100, 100, 100);
+      doc.text(
+        "* El equipo alquilado está exento de IVA conforme al artículo 20.Uno.26º de la Ley 37/1992 del IVA.",
+        14, equipoTableEndY
+      );
+      doc.setTextColor(0, 0, 0);
+      equipoTableEndY += 8;
+    }
+
+    finalY = equipoTableEndY;
+    const pageHeight = doc.internal.pageSize.getHeight();
+    if (finalY + 40 > pageHeight - 20) {
+      doc.addPage();
+      finalY = 20;
+    }
+
     const applyIrpf = document.getElementById("irpfToggle").checked === true;
     const ivaAmount = subtotal * 0.21;
     const irpfAmount = applyIrpf ? subtotal * 0.15 : 0;
-    const grandTotal = subtotal + ivaAmount - irpfAmount;
+    const grandTotal = subtotal + ivaAmount - irpfAmount + equipoSubtotal;
 
     doc.setFont("helvetica", "normal");
     doc.setFontSize(11);
-    doc.text(`Subtotal: ${subtotal.toFixed(2)} €`, 140, finalY);
-    doc.text(`IVA (21%): ${ivaAmount.toFixed(2)} €`, 140, finalY + 6);
+    doc.text(`Subtotal servicios: ${subtotal.toFixed(2)} €`, 130, finalY);
+    doc.text(`IVA (21%): ${ivaAmount.toFixed(2)} €`, 130, finalY + 6);
     if (applyIrpf) {
-      doc.text(`IRPF (15%): ${irpfAmount.toFixed(2)} €`, 140, finalY + 12);
+      doc.text(`IRPF (15%): -${irpfAmount.toFixed(2)} €`, 130, finalY + 12);
     }
+    if (equipoSubtotal > 0) {
+      doc.text(`Equipo alquilado (exento IVA): ${equipoSubtotal.toFixed(2)} €`, 130, finalY + (applyIrpf ? 18 : 12));
+    }
+    const totalLineY = finalY + (applyIrpf ? 24 : 18) + (equipoSubtotal > 0 ? 6 : 0);
     doc.setFont("helvetica", "bold");
-    doc.text(`Total: ${grandTotal.toFixed(2)} €`, 140, finalY + 18);
+    doc.text(`TOTAL: ${grandTotal.toFixed(2)} €`, 130, totalLineY);
 
-    doc.save(`factura_${invoiceDate.replace(/\//g, "-")}.pdf`);
+    doc.save(`factura_${invoiceDateRaw || invoiceDate.replace(/\//g, "-")}.pdf`);
   } catch (error) {
     console.error("❌ Error generating PDF:", error);
     alert("Hubo un error al generar el PDF. Revisa los campos del formulario.");
@@ -714,7 +818,9 @@ function loadInvoice() {
   document.getElementById("invoiceDate").value = saved.invoiceDate || "";
 
   document.getElementById("invoiceItems").innerHTML = "";
+  document.getElementById("equipoItems").innerHTML = "";
   (saved.items || []).forEach(item => addItem(item));
+  (saved.equipoItems || []).forEach(item => addEquipoItem(item));
   updateTotals();
 }
 
