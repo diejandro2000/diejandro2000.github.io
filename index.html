@@ -44,7 +44,7 @@
         </div>
       </div>
       <input type="text" id="invoiceNumber" placeholder="Número de factura" required>
-      <input type="text" id="invoiceDate" placeholder="dd/mm/aaaa">
+      <input type="date" id="invoiceDate">
 
       <div class="table-container">
         <table id="invoiceTable">
@@ -55,24 +55,9 @@
               <th>Actividad</th>
               <th>Inicio</th>
               <th>Final</th>
-              <th>Horas</th>
+              <th>Horas <span class="th-subtext">[Tarifa horas extra (€/hora) = 20]</span></th>
               <th>Dieta</th>
-
-              <th>
-                Alquiler de equipo
-                <br>
-                <span style="
-                  font-size:0.75em;
-                  font-weight:normal;
-                  color:#666;
-                ">
-                  (Exento de IVA)
-                </span>
-              </th>
-
               <th>Total (€)</th>
-
-              <th></th>
             </tr>
           </thead>
           <tbody id="invoiceItems"></tbody>
@@ -85,10 +70,6 @@
         <div><strong>Subtotal:</strong> <span id="subtotal">0.00</span>€</div>
         <div><strong>IVA (21%):</strong> <span id="ivaAmount">0.00</span>€</div>
         <div><label style="font-weight:normal; cursor:pointer;"><input type="checkbox" id="irpfToggle" checked> <strong>IRPF (15%):</strong></label> <span id="irpfAmount">0.00</span>€</div>
-        <div>
-        <strong>Alquiler exento IVA:</strong>
-        <span id="equipoExentoTotal">0,00</span> €
-      </div>
         <div><strong>Total:</strong> <span id="grandTotal">0.00</span>€</div>
         <div id="dietaNote" style="font-style: italic; font-size: 0.9em;"></div>
       </div>
