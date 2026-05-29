@@ -12,33 +12,18 @@ body.dark {
 }
 
 body {
-  font-family: 'Inter', 'Segoe UI', sans-serif;
+  font-family: 'Segoe UI', sans-serif;
   margin: 0;
   padding: 0;
   background: var(--bg);
   color: var(--text);
   background-image:
-    radial-gradient(circle at top left,    rgba(0,194,255,0.08), transparent 30%),
+    radial-gradient(circle at top left, rgba(0,194,255,0.08), transparent 30%),
     radial-gradient(circle at bottom right, rgba(0,255,204,0.06), transparent 30%);
 }
 
-/* Background glow decoration */
-.bg-glow {
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 0;
-  background:
-    radial-gradient(ellipse 60% 40% at 10% 10%, rgba(0,194,255,0.07), transparent),
-    radial-gradient(ellipse 50% 40% at 90% 90%, rgba(0,255,204,0.05), transparent);
-}
-
-/* ========================
-   HEADER
-======================== */
+/* HEADER */
 header {
-  position: relative;
-  z-index: 10;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -66,12 +51,8 @@ h1 {
   color: #8ea9bd;
 }
 
-/* ========================
-   MAIN CARD
-======================== */
+/* MAIN CARD */
 main {
-  position: relative;
-  z-index: 1;
   max-width: 1400px;
   margin: 20px auto;
   background: rgba(11, 22, 32, 0.96);
@@ -84,14 +65,14 @@ main {
   backdrop-filter: blur(8px);
 }
 
-/* ========================
-   TABLES
-======================== */
+/* TABLE */
 main table {
   width: 100%;
   border-collapse: collapse;
   margin-top: 20px;
   table-layout: auto;
+  overflow: hidden;
+  border-radius: 10px;
 }
 
 th,
@@ -119,9 +100,7 @@ tr:hover td {
   letter-spacing: 0.5px;
 }
 
-/* ========================
-   BUTTONS
-======================== */
+/* BUTTONS */
 button {
   background: linear-gradient(135deg, #00c2ff, #0077ff);
   color: white;
@@ -132,10 +111,10 @@ button {
   transition: all 0.25s ease;
   box-shadow: 0 0 10px rgba(0, 194, 255, 0.25);
   font-weight: 500;
-  font-family: inherit;
 }
 
 button:hover {
+  opacity: 1;
   transform: translateY(-1px);
   box-shadow: 0 0 16px rgba(0, 194, 255, 0.4);
 }
@@ -149,6 +128,7 @@ button.btn-danger:hover {
   box-shadow: 0 0 18px rgba(255,77,109,0.5);
 }
 
+/* THEME BUTTON */
 #themeToggle {
   background: none;
   color: var(--text);
@@ -156,23 +136,14 @@ button.btn-danger:hover {
   box-shadow: none;
 }
 
-#themeToggle:hover {
-  transform: none;
-  box-shadow: none;
-}
-
-/* ========================
-   SUMMARY
-======================== */
+/* SUMMARY */
 .summary {
   margin-top: 15px;
   text-align: right;
   color: #9fc3d9;
 }
 
-/* ========================
-   ACTIONS
-======================== */
+/* ACTION BUTTONS */
 .actions {
   margin-top: 20px;
   display: flex;
@@ -181,9 +152,7 @@ button.btn-danger:hover {
   flex-wrap: wrap;
 }
 
-/* ========================
-   VERSION HISTORY
-======================== */
+/* VERSION HISTORY */
 .version-history-bar {
   margin-top: 14px;
   display: flex;
@@ -208,9 +177,7 @@ button.btn-danger:hover {
   min-width: 280px;
 }
 
-/* ========================
-   STORAGE BAR
-======================== */
+/* STORAGE BAR */
 #storageBar {
   margin-top: 14px;
   height: 8px;
@@ -234,44 +201,25 @@ button.btn-danger:hover {
   text-align: right;
 }
 
-/* ========================
-   EQUIPO TABLE
-======================== */
+/* EQUIPO TABLE */
 #equipoTable {
   margin-top: 8px;
 }
 
-/* ========================
-   CLIENT MODAL
-   (overlay + box styles — display toggled by JS via style.display)
-======================== */
+/* CLIENT MODAL */
 #clientModal {
-  /* JS sets display:flex to open, display:none to close */
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.65);
-  z-index: 1000;
-  align-items: center;
-  justify-content: center;
+  display: none;
   pointer-events: none;
 }
 
 #clientModalBox {
-  background: var(--card-bg);
-  color: var(--text);
-  border-radius: 12px;
-  padding: 30px;
-  width: min(560px, 95vw);
-  max-height: 85vh;
-  overflow-y: auto;
-  box-shadow:
-    0 0 40px rgba(0,194,255,0.12),
-    0 8px 32px rgba(0,0,0,0.5);
+  background: #0b1620;
   border: 1px solid rgba(0,194,255,0.12);
+  border-radius: 12px;
+  box-shadow: 0 0 30px rgba(0,194,255,0.08);
 }
 
 #clientModalBox h2 {
-  margin-top: 0;
   font-size: 1.3em;
   border-bottom: 2px solid var(--accent);
   padding-bottom: 8px;
@@ -288,13 +236,10 @@ button.btn-danger:hover {
   background: rgba(0,194,255,0.06);
 }
 
-/* ========================
-   INPUTS
-======================== */
+/* INPUTS */
 input[type="text"],
 input[type="number"],
-input[type="date"],
-select {
+input[type="date"] {
   padding: 8px;
   border: 1px solid rgba(0, 194, 255, 0.15);
   border-radius: 6px;
@@ -302,7 +247,6 @@ select {
   color: #d9e7f2;
   outline: none;
   transition: border 0.2s ease, box-shadow 0.2s ease;
-  font-family: inherit;
 }
 
 input[type="text"]:focus,
@@ -312,9 +256,7 @@ input[type="date"]:focus {
   box-shadow: 0 0 8px rgba(0,194,255,0.25);
 }
 
-/* ========================
-   EDIT ICON BUTTONS
-======================== */
+/* EDIT ICONS */
 .editHoras,
 .editTotal {
   background: none;
@@ -334,6 +276,4 @@ input[type="date"]:focus {
 .editTotal:hover {
   opacity: 1;
   color: #00c2ff;
-  transform: none;
-  box-shadow: none;
 }
