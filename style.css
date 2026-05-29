@@ -1,14 +1,14 @@
 :root {
-  --bg: #f8f9fa;
-  --text: #222;
-  --accent: #007bff;
-  --card-bg: #fff;
+  --bg: #050b12;
+  --text: #d9e7f2;
+  --accent: #00c2ff;
+  --card-bg: #0b1620;
 }
 
 body.dark {
-  --bg: #1e1e1e;
-  --text: #eaeaea;
-  --card-bg: #2b2b2b;
+  --bg: #02060b;
+  --text: #eaf6ff;
+  --card-bg: #08131d;
 }
 
 body {
@@ -17,15 +17,20 @@ body {
   padding: 0;
   background: var(--bg);
   color: var(--text);
+  background-image:
+    radial-gradient(circle at top left, rgba(0,194,255,0.08), transparent 30%),
+    radial-gradient(circle at bottom right, rgba(0,255,204,0.06), transparent 30%);
 }
 
+/* HEADER */
 header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: var(--card-bg);
-  padding: 10px 20px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  background: rgba(11, 22, 32, 0.95);
+  padding: 12px 24px;
+  border-bottom: 1px solid rgba(0, 194, 255, 0.15);
+  box-shadow: 0 2px 12px rgba(0,0,0,0.45);
 }
 
 .branding {
@@ -36,66 +41,109 @@ header {
 
 h1 {
   text-align: center;
+  color: #eaf6ff;
+  letter-spacing: 1px;
 }
 
 .th-subtext {
   font-weight: normal;
   font-size: 0.85em;
-  color: #555;
+  color: #8ea9bd;
 }
 
+/* MAIN CARD */
 main {
   max-width: 1400px;
   margin: 20px auto;
-  background: var(--card-bg);
+  background: rgba(11, 22, 32, 0.96);
   padding: 40px 30px;
-  border-radius: 10px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+  border-radius: 14px;
+  border: 1px solid rgba(0, 194, 255, 0.08);
+  box-shadow:
+    0 0 30px rgba(0, 194, 255, 0.06),
+    0 10px 30px rgba(0,0,0,0.45);
+  backdrop-filter: blur(8px);
 }
 
+/* TABLE */
 main table {
   width: 100%;
   border-collapse: collapse;
   margin-top: 20px;
   table-layout: auto;
+  overflow: hidden;
+  border-radius: 10px;
 }
 
-th, td {
-  border: 1px solid #ccc;
+th,
+td {
+  border: 1px solid rgba(255,255,255,0.06);
   padding: 14px 18px;
   text-align: center;
   word-wrap: break-word;
 }
 
+td {
+  background: rgba(255,255,255,0.01);
+}
+
+tr:hover td {
+  background: rgba(0,194,255,0.04);
+}
+
+#invoiceTable th,
+#equipoTable th {
+  background: #102534;
+  color: #dff6ff;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* BUTTONS */
 button {
-  background: var(--accent);
+  background: linear-gradient(135deg, #00c2ff, #0077ff);
   color: white;
   border: none;
-  padding: 8px 12px;
-  border-radius: 5px;
+  padding: 9px 14px;
+  border-radius: 7px;
   cursor: pointer;
-  transition: 0.2s;
+  transition: all 0.25s ease;
+  box-shadow: 0 0 10px rgba(0, 194, 255, 0.25);
+  font-weight: 500;
 }
 
 button:hover {
-  opacity: 0.9;
+  opacity: 1;
+  transform: translateY(-1px);
+  box-shadow: 0 0 16px rgba(0, 194, 255, 0.4);
 }
 
 button.btn-danger {
-  background: #dc3545;
+  background: linear-gradient(135deg, #ff4d6d, #c9184a);
+  box-shadow: 0 0 12px rgba(255,77,109,0.3);
 }
 
+button.btn-danger:hover {
+  box-shadow: 0 0 18px rgba(255,77,109,0.5);
+}
+
+/* THEME BUTTON */
 #themeToggle {
   background: none;
   color: var(--text);
   font-size: 20px;
+  box-shadow: none;
 }
 
+/* SUMMARY */
 .summary {
   margin-top: 15px;
   text-align: right;
+  color: #9fc3d9;
 }
 
+/* ACTION BUTTONS */
 .actions {
   margin-top: 20px;
   display: flex;
@@ -104,7 +152,7 @@ button.btn-danger {
   flex-wrap: wrap;
 }
 
-/* Version history row */
+/* VERSION HISTORY */
 .version-history-bar {
   margin-top: 14px;
   display: flex;
@@ -120,20 +168,20 @@ button.btn-danger {
 }
 
 .version-history-bar select {
-  padding: 6px 10px;
-  border-radius: 5px;
-  border: 1px solid #ccc;
-  background: var(--card-bg);
-  color: var(--text);
+  padding: 8px 10px;
+  border-radius: 6px;
+  border: 1px solid rgba(0, 194, 255, 0.15);
+  background: #09131d;
+  color: #d9e7f2;
   font-size: 0.9em;
   min-width: 280px;
 }
 
-/* Storage bar */
+/* STORAGE BAR */
 #storageBar {
   margin-top: 14px;
   height: 8px;
-  background: #e0e0e0;
+  background: #0f1b27;
   border-radius: 4px;
   overflow: hidden;
 }
@@ -141,7 +189,7 @@ button.btn-danger {
 #storageBarFill {
   height: 100%;
   width: 0%;
-  background: #28a745;
+  background: linear-gradient(90deg, #00c2ff, #00ffcc);
   border-radius: 4px;
   transition: width 0.4s ease, background 0.4s ease;
 }
@@ -149,64 +197,83 @@ button.btn-danger {
 #storageLabel {
   margin-top: 5px;
   font-size: 0.78em;
-  color: #888;
+  color: #7f9bb0;
   text-align: right;
 }
 
-/* Equipo alquilado table */
+/* EQUIPO TABLE */
 #equipoTable {
   margin-top: 8px;
 }
 
-#invoiceTable th,
-#equipoTable th {
-  background: #34495e;
-  color: #fff;
-}
-
-
-
-/* Client manager modal */
+/* CLIENT MODAL */
 #clientModal {
   display: none;
   pointer-events: none;
+}
+
+#clientModalBox {
+  background: #0b1620;
+  border: 1px solid rgba(0,194,255,0.12);
+  border-radius: 12px;
+  box-shadow: 0 0 30px rgba(0,194,255,0.08);
 }
 
 #clientModalBox h2 {
   font-size: 1.3em;
   border-bottom: 2px solid var(--accent);
   padding-bottom: 8px;
+  color: #eaf6ff;
 }
 
 #clientList div {
   transition: background 0.15s;
+  padding: 8px;
+  border-radius: 6px;
 }
 
 #clientList div:hover {
-  background: rgba(0,0,0,0.04);
+  background: rgba(0,194,255,0.06);
 }
 
-input[type="text"], input[type="number"], input[type="date"] {
-  padding: 6px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
+/* INPUTS */
+input[type="text"],
+input[type="number"],
+input[type="date"] {
+  padding: 8px;
+  border: 1px solid rgba(0, 194, 255, 0.15);
+  border-radius: 6px;
+  background: #09131d;
+  color: #d9e7f2;
+  outline: none;
+  transition: border 0.2s ease, box-shadow 0.2s ease;
 }
 
-.editHoras, .editTotal {
+input[type="text"]:focus,
+input[type="number"]:focus,
+input[type="date"]:focus {
+  border-color: #00c2ff;
+  box-shadow: 0 0 8px rgba(0,194,255,0.25);
+}
+
+/* EDIT ICONS */
+.editHoras,
+.editTotal {
   background: none;
   border: none;
-  color: #888;
+  color: #7ea3bb;
   font-size: 12px;
   cursor: pointer;
   padding: 0;
   margin-left: 3px;
   vertical-align: middle;
-  opacity: 0.6;
-  transition: opacity 0.2s ease;
+  opacity: 0.7;
+  transition: all 0.2s ease;
+  box-shadow: none;
 }
 
 .editHoras:hover,
 .editTotal:hover {
   opacity: 1;
-  color: #333;
+  color: #00c2ff;
 }

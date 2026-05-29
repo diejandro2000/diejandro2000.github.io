@@ -1,53 +1,124 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Generador de facturas</title>
+
+  <!-- Modern Font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
   <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
+
+  <!-- Background glow -->
+  <div class="bg-glow"></div>
+
   <header>
-    <button id="themeToggle">🌙</button>
+    <button id="themeToggle">🌑</button>
   </header>
 
   <main>
+
     <div id="invoice-form">
+
+      <!-- CLIENT SELECT -->
       <label for="clientSelect">Seleccionar cliente:</label>
+
       <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
         <select id="clientSelect"></select>
-        <button id="manageClients" title="Añadir o editar clientes">👤 Gestionar clientes</button>
+
+        <button id="manageClients" title="Añadir o editar clientes">
+          👤 Gestionar clientes
+        </button>
       </div>
 
-      <!-- Client Manager Modal -->
-      <div id="clientModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:1000; align-items:center; justify-content:center;">
-        <div id="clientModalBox" style="background:var(--card-bg); color:var(--text); border-radius:10px; padding:30px; width:min(560px,95vw); max-height:85vh; overflow-y:auto; box-shadow:0 8px 32px rgba(0,0,0,0.3);">
-          <h2 style="margin-top:0;">👤 Gestionar clientes</h2>
+      <!-- CLIENT MODAL -->
+      <div id="clientModal">
 
-          <!-- List of existing clients -->
-          <div id="clientList" style="margin-bottom:20px;"></div>
+        <div id="clientModalBox">
 
-          <!-- Add / Edit form -->
-          <h3 id="clientFormTitle" style="margin-bottom:8px;">➕ Añadir nuevo cliente</h3>
-          <div style="display:grid; gap:8px;">
+          <h2>👤 Gestionar clientes</h2>
+
+          <!-- Existing clients -->
+          <div id="clientList"></div>
+
+          <!-- Add / Edit -->
+          <h3 id="clientFormTitle">
+            ➕ Añadir nuevo cliente
+          </h3>
+
+          <div class="client-form-grid">
+
             <input type="hidden" id="editClientKey">
-            <input type="text" id="newClientLabel" placeholder="Nombre en el desplegable (ej: Mi Empresa)" style="width:100%; box-sizing:border-box;">
-            <input type="text" id="newClientName"  placeholder="Nombre completo para la factura"        style="width:100%; box-sizing:border-box;">
-            <input type="text" id="newClientAddr"  placeholder="Dirección"                              style="width:100%; box-sizing:border-box;">
-            <input type="text" id="newClientNIF"   placeholder="NIF / CIF"                              style="width:100%; box-sizing:border-box;">
-            <div style="display:flex; gap:8px; justify-content:flex-end; flex-wrap:wrap;">
-              <button id="saveClient">💾 Guardar cliente</button>
-              <button id="cancelEditClient" style="display:none; background:#6c757d;">✖ Cancelar edición</button>
-              <button id="closeClientModal" style="background:#6c757d;">✖ Cerrar</button>
+
+            <input
+              type="text"
+              id="newClientLabel"
+              placeholder="Nombre en el desplegable (ej: Mi Empresa)"
+            >
+
+            <input
+              type="text"
+              id="newClientName"
+              placeholder="Nombre completo para la factura"
+            >
+
+            <input
+              type="text"
+              id="newClientAddr"
+              placeholder="Dirección"
+            >
+
+            <input
+              type="text"
+              id="newClientNIF"
+              placeholder="NIF / CIF"
+            >
+
+            <div class="modal-actions">
+
+              <button id="saveClient">
+                💾 Guardar cliente
+              </button>
+
+              <button
+                id="cancelEditClient"
+                style="display:none;"
+              >
+                ✖ Cancelar edición
+              </button>
+
+              <button id="closeClientModal">
+                ✖ Cerrar
+              </button>
+
             </div>
           </div>
         </div>
       </div>
-      <input type="text" id="invoiceNumber" placeholder="Número de factura" required>
-      <input type="date" id="invoiceDate">
 
+      <!-- INVOICE INFO -->
+      <input
+        type="text"
+        id="invoiceNumber"
+        placeholder="Número de factura"
+        required
+      >
+
+      <input
+        type="date"
+        id="invoiceDate"
+      >
+
+      <!-- SERVICES TABLE -->
       <div class="table-container">
+
         <table id="invoiceTable">
+
           <thead>
             <tr>
               <th>Fecha</th>
@@ -55,21 +126,41 @@
               <th>Actividad</th>
               <th>Inicio</th>
               <th>Final</th>
-              <th>Horas <span class="th-subtext">[Tarifa horas extra (€/hora) = 20]</span></th>
+
+              <th>
+                Horas
+                <span class="th-subtext">
+                  [Tarifa horas extra (€/hora) = 20]
+                </span>
+              </th>
+
               <th>Dieta</th>
               <th>Total (€)</th>
             </tr>
           </thead>
+
           <tbody id="invoiceItems"></tbody>
+
         </table>
       </div>
 
-      <button id="addItem">➕ Añadir jornada</button>
+      <button id="addItem">
+        ➕ Añadir jornada
+      </button>
 
-      <!-- Equipo alquilado -->
-      <h3 style="margin-top:30px; margin-bottom:6px;">🎛️ Equipo alquilado <span style="font-weight:normal; font-size:0.8em; color:#888;">(exento de IVA)</span></h3>
+      <!-- EQUIPO -->
+      <h3 class="section-title">
+        🎛️ Equipo alquilado
+
+        <span class="section-subtitle">
+          (exento de IVA)
+        </span>
+      </h3>
+
       <div class="table-container">
+
         <table id="equipoTable">
+
           <thead>
             <tr>
               <th>Material / Descripción</th>
@@ -77,44 +168,114 @@
               <th></th>
             </tr>
           </thead>
+
           <tbody id="equipoItems"></tbody>
+
         </table>
       </div>
-      <button id="addEquipo">➕ Añadir equipo</button>
 
+      <button id="addEquipo">
+        ➕ Añadir equipo
+      </button>
+
+      <!-- SUMMARY -->
       <div class="summary">
-        <div><strong>Subtotal servicios:</strong> <span id="subtotal">0.00</span>€</div>
-        <div><strong>IVA (21%):</strong> <span id="ivaAmount">0.00</span>€</div>
-        <div><label style="font-weight:normal; cursor:pointer;"><input type="checkbox" id="irpfToggle" checked> <strong>IRPF (15%):</strong></label> <span id="irpfAmount">0.00</span>€</div>
-        <div><strong>Equipo alquilado (exento IVA):</strong> <span id="equipoTotal">0.00</span>€</div>
-        <div><strong>Total:</strong> <span id="grandTotal">0.00</span>€</div>
-        <div id="dietaNote" style="font-style: italic; font-size: 0.9em;"></div>
+
+        <div>
+          <strong>Subtotal servicios:</strong>
+          <span id="subtotal">0.00</span>€
+        </div>
+
+        <div>
+          <strong>IVA (21%):</strong>
+          <span id="ivaAmount">0.00</span>€
+        </div>
+
+        <div>
+          <label style="font-weight:normal; cursor:pointer;">
+
+            <input
+              type="checkbox"
+              id="irpfToggle"
+              checked
+            >
+
+            <strong>IRPF (15%):</strong>
+
+          </label>
+
+          <span id="irpfAmount">0.00</span>€
+        </div>
+
+        <div>
+          <strong>Equipo alquilado (exento IVA):</strong>
+          <span id="equipoTotal">0.00</span>€
+        </div>
+
+        <div>
+          <strong>Total:</strong>
+          <span id="grandTotal">0.00</span>€
+        </div>
+
+        <div id="dietaNote"></div>
+
       </div>
 
+      <!-- ACTIONS -->
       <div class="actions">
-        <button id="generatePDF">📄 Descargar PDF</button>
-        <button id="saveVersion">💾 Guardar versión</button>
-        <button id="clearHistory" class="btn-danger">🗑️ Borrar historial</button>
+
+        <button id="generatePDF">
+          📄 Descargar PDF
+        </button>
+
+        <button id="saveVersion">
+          💾 Guardar versión
+        </button>
+
+        <button id="clearHistory" class="btn-danger">
+          🗑️ Borrar historial
+        </button>
+
       </div>
 
+      <!-- VERSION HISTORY -->
       <div class="version-history-bar">
-        <label for="versionHistory">Versiones guardadas:</label>
+
+        <label for="versionHistory">
+          Versiones guardadas:
+        </label>
+
         <select id="versionHistory">
-          <option value="">— Sin versiones guardadas —</option>
+          <option value="">
+            — Sin versiones guardadas —
+          </option>
         </select>
-        <button id="restoreVersion">↩️ Restaurar</button>
+
+        <button id="restoreVersion">
+          ↩️ Restaurar
+        </button>
+
       </div>
 
+      <!-- STORAGE -->
       <div id="storageBar">
         <div id="storageBarFill"></div>
       </div>
+
       <div id="storageLabel"></div>
 
     </div>
+
   </main>
 
+  <!-- jsPDF -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+  <!-- AutoTable -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+
+  <!-- App -->
   <script src="script.js"></script>
+
 </body>
 </html>
