@@ -758,7 +758,7 @@ function generatePDF() {
         body: equipoRows,
         startY: equipoTableEndY + 4,
         theme: "striped",
-        headStyles: { fillColor: [80, 120, 80], textColor: 255 },
+        headStyles: { fillColor: [52, 73, 94], textColor: 255 },
         styles: { fontSize: 8, cellPadding: 2 },
         tableWidth: "auto",
         columnStyles: { 1: { halign: "right" } },

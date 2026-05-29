@@ -158,8 +158,9 @@ button.btn-danger {
   margin-top: 8px;
 }
 
+#invoiceTable th,
 #equipoTable th {
-  background: #3d6b3d;
+  background: #34495e;
   color: #fff;
 }
 
