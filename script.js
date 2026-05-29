@@ -4,7 +4,6 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("addItem").addEventListener("click", addItem);
   document.getElementById("addEquipo").addEventListener("click", () => addEquipoItem());
   document.getElementById("generatePDF").addEventListener("click", generatePDF);
-  document.getElementById("themeToggle").addEventListener("click", toggleTheme);
 
   // Client manager
   document.getElementById("manageClients").addEventListener("click", openClientModal);
@@ -22,6 +21,7 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("clearHistory").addEventListener("click", clearHistory);
 
   document.getElementById("irpfToggle").addEventListener("change", updateTotals);
+  initDatePicker(document.getElementById("invoiceDate"));
   loadVersionHistory();
   updateStorageBar();
 });
@@ -213,10 +213,57 @@ function saveClient() {
 //  DATE / TIME FORMATTING (Spanish locale)
 // ─────────────────────────────────────────────
 
-function formatDateES(isoDate) {
-  if (!isoDate) return "";
-  const [y, m, d] = isoDate.split("-");
+function formatDateES(dateStr) {
+  if (!dateStr) return "";
+  // Already in dd/mm/aaaa display format
+  if (dateStr.includes("/")) return dateStr;
+  // ISO yyyy-mm-dd → dd/mm/aaaa
+  const [y, m, d] = dateStr.split("-");
   return `${d}/${m}/${y}`;
+}
+
+// Convert stored ISO (yyyy-mm-dd) to display (dd/mm/aaaa)
+function isoToDisplay(v) {
+  if (!v) return "";
+  if (v.includes("/")) return v; // already display
+  const [y, m, d] = v.split("-");
+  return (y && m && d) ? `${d}/${m}/${y}` : v;
+}
+
+// Convert display (dd/mm/aaaa) back to ISO (yyyy-mm-dd) for storage
+function displayToIso(v) {
+  if (!v) return "";
+  if (v.includes("-")) return v; // already ISO
+  const [d, m, y] = v.split("/");
+  return (d && m && y) ? `${y}-${m.padStart(2, "0")}-${d.padStart(2, "0")}` : v;
+}
+
+// Auto-insert slashes as the user types: dd/mm/aaaa
+// Calendar date picker (dd/mm/aaaa, valid dates only). Falls back to plain
+// text input if flatpickr fails to load.
+function initDatePicker(input) {
+  if (!input || typeof flatpickr === "undefined") return;
+  flatpickr(input, {
+    dateFormat: "d/m/Y",
+    allowInput: false,
+    locale: "es",
+    onChange: () => updateTotals()
+  });
+}
+
+// 24-hour time picker (HH:MM). Falls back to plain text input if flatpickr
+// fails to load.
+function initTimePicker(input, onPick) {
+  if (!input || typeof flatpickr === "undefined") return;
+  flatpickr(input, {
+    enableTime: true,
+    noCalendar: true,
+    dateFormat: "H:i",
+    time_24hr: true,
+    allowInput: false,
+    locale: "es",
+    onChange: () => { if (typeof onPick === "function") onPick(); }
+  });
 }
 
 function formatTimeES(timeStr) {
@@ -295,7 +342,7 @@ function getInvoiceSnapshot() {
     const actividadDropdown = row.querySelector(".actividadDropdown")?.value || "";
     const actividadOtro = row.querySelector(".actividad")?.value || "";
     items.push({
-      fecha: row.querySelector(".fecha")?.value || "",
+      fecha: displayToIso(row.querySelector(".fecha")?.value || ""),
       lugarDropdown,
       lugar: lugarOtro,
       actividadDropdown,
@@ -320,7 +367,7 @@ function getInvoiceSnapshot() {
   return {
     clientId: document.getElementById("clientSelect").value,
     invoiceNumber: document.getElementById("invoiceNumber").value,
-    invoiceDate: document.getElementById("invoiceDate").value,
+    invoiceDate: displayToIso(document.getElementById("invoiceDate").value),
     items,
     equipoItems
   };
@@ -373,7 +420,10 @@ function restoreVersion() {
 
   document.getElementById("clientSelect").value = snapshot.clientId || "";
   document.getElementById("invoiceNumber").value = snapshot.invoiceNumber || "";
-  document.getElementById("invoiceDate").value = snapshot.invoiceDate || "";
+  const invDateEl = document.getElementById("invoiceDate");
+  const dispDate = isoToDisplay(snapshot.invoiceDate || "");
+  if (invDateEl._flatpickr) invDateEl._flatpickr.setDate(dispDate, false);
+  else invDateEl.value = dispDate;
   document.getElementById("invoiceItems").innerHTML = "";
   document.getElementById("equipoItems").innerHTML = "";
   (snapshot.items || []).forEach(item => addItem(item));
@@ -405,7 +455,7 @@ function addItem(item = {}) {
   const row = document.createElement("tr");
 
   row.innerHTML = `
-    <td style="width:80px;"><input type="date" class="fecha" value="${item.fecha || ""}"></td>
+    <td style="width:90px;"><input type="text" inputmode="numeric" maxlength="10" class="fecha" placeholder="dd/mm/aaaa" value="${isoToDisplay(item.fecha || "")}" style="width:86px;"></td>
 
     <td style="width:120px;">
       <select class="lugarDropdown" style="width:100%;">
@@ -435,8 +485,8 @@ function addItem(item = {}) {
       <input type="text" class="actividad" placeholder="Otro" value="${item.actividad || ""}" style="display:none; width:100%;">
     </td>
 
-    <td style="width:70px;"><input type="time" class="inicio" value="${item.inicio || ""}"></td>
-    <td style="width:70px;"><input type="time" class="final" value="${item.final || ""}"></td>
+    <td style="width:70px;"><input type="text" class="inicio" placeholder="hh:mm" value="${item.inicio || ""}" style="width:60px;"></td>
+    <td style="width:70px;"><input type="text" class="final" placeholder="hh:mm" value="${item.final || ""}" style="width:60px;"></td>
 
     <td style="width:80px;"><input type="number" class="horas" value="${item.horas?.toFixed?.(2) || "0.00"}" step="0.01" style="width:60px;"></td>
 
@@ -514,6 +564,10 @@ function addItem(item = {}) {
     row.remove();
     updateTotals();
   });
+
+  initDatePicker(row.querySelector(".fecha"));
+  initTimePicker(row.querySelector(".inicio"), recalcFromTimes);
+  initTimePicker(row.querySelector(".final"), recalcFromTimes);
 
   recalcFromTimes();
   updateTotals();
@@ -802,7 +856,7 @@ function generatePDF() {
     doc.setFont("helvetica", "bold");
     doc.text(`TOTAL: ${grandTotal.toFixed(2)} €`, 130, totalLineY);
 
-    doc.save(`factura_${invoiceDateRaw || invoiceDate.replace(/\//g, "-")}.pdf`);
+    doc.save(`factura_${(invoiceDateRaw || invoiceDate).replace(/\//g, "-")}.pdf`);
   } catch (error) {
     console.error("❌ Error generating PDF:", error);
     alert("Hubo un error al generar el PDF. Revisa los campos del formulario.");
@@ -819,23 +873,13 @@ function loadInvoice() {
 
   document.getElementById("clientSelect").value = saved.clientId || "";
   document.getElementById("invoiceNumber").value = saved.invoiceNumber || "";
-  document.getElementById("invoiceDate").value = saved.invoiceDate || "";
+  document.getElementById("invoiceDate").value = isoToDisplay(saved.invoiceDate || "");
 
   document.getElementById("invoiceItems").innerHTML = "";
   document.getElementById("equipoItems").innerHTML = "";
   (saved.items || []).forEach(item => addItem(item));
   (saved.equipoItems || []).forEach(item => addEquipoItem(item));
   updateTotals();
-}
-
-// ─────────────────────────────────────────────
-//  THEME
-// ─────────────────────────────────────────────
-
-function toggleTheme() {
-  document.body.classList.toggle("dark");
-  const btn = document.getElementById("themeToggle");
-  btn.textContent = document.body.classList.contains("dark") ? "☀️" : "🌙";
 }
 
 // ─────────────────────────────────────────────

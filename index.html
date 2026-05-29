@@ -1,14 +1,14 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Generador de facturas</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/flatpickr.min.css">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <header>
-    <button id="themeToggle">🌙</button>
   </header>
 
   <main>
@@ -44,7 +44,7 @@
         </div>
       </div>
       <input type="text" id="invoiceNumber" placeholder="Número de factura" required>
-      <input type="date" id="invoiceDate">
+      <input type="text" id="invoiceDate" inputmode="numeric" maxlength="10" placeholder="dd/mm/aaaa">
 
       <div class="table-container">
         <table id="invoiceTable">
@@ -115,6 +115,8 @@
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/flatpickr.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/l10n/es.min.js"></script>
   <script src="script.js"></script>
 </body>
 </html>
