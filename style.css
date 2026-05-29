@@ -1,14 +1,20 @@
 :root {
-  --bg: #050b12;
-  --text: #d9e7f2;
-  --accent: #00c2ff;
-  --card-bg: #0b1620;
+  --bg: #0f172a;
+  --text: #e5e7eb;
+  --accent: #3b82f6;
+  --card-bg: #1e293b;
+  --border: #334155;
+  --input-bg: #111827;
+  --table-header: #1d4ed8;
 }
 
 body.dark {
-  --bg: #02060b;
-  --text: #eaf6ff;
-  --card-bg: #08131d;
+  --bg: #020617;
+  --text: #f1f5f9;
+  --card-bg: #0f172a;
+  --border: #334155;
+  --input-bg: #111827;
+  --table-header: #2563eb;
 }
 
 body {
@@ -17,263 +23,115 @@ body {
   padding: 0;
   background: var(--bg);
   color: var(--text);
-  background-image:
-    radial-gradient(circle at top left, rgba(0,194,255,0.08), transparent 30%),
-    radial-gradient(circle at bottom right, rgba(0,255,204,0.06), transparent 30%);
 }
 
-/* HEADER */
 header {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end;
   align-items: center;
-  background: rgba(11, 22, 32, 0.95);
-  padding: 12px 24px;
-  border-bottom: 1px solid rgba(0, 194, 255, 0.15);
-  box-shadow: 0 2px 12px rgba(0,0,0,0.45);
+  background: var(--card-bg);
+  padding: 12px 20px;
+  border-bottom: 1px solid var(--border);
 }
 
-.branding {
-  display: flex;
-  align-items: center;
-  gap: 10px;
+main {
+  max-width: 1400px;
+  margin: 20px auto;
+  background: var(--card-bg);
+  padding: 40px 30px;
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  box-shadow: 0 10px 25px rgba(0,0,0,0.25);
 }
 
-h1 {
-  text-align: center;
-  color: #eaf6ff;
-  letter-spacing: 1px;
+h1, h2, h3 {
+  color: white;
 }
 
 .th-subtext {
   font-weight: normal;
   font-size: 0.85em;
-  color: #8ea9bd;
+  color: #94a3b8;
 }
 
-/* MAIN CARD */
-main {
-  max-width: 1400px;
-  margin: 20px auto;
-  background: rgba(11, 22, 32, 0.96);
-  padding: 40px 30px;
-  border-radius: 14px;
-  border: 1px solid rgba(0, 194, 255, 0.08);
-  box-shadow:
-    0 0 30px rgba(0, 194, 255, 0.06),
-    0 10px 30px rgba(0,0,0,0.45);
-  backdrop-filter: blur(8px);
-}
-
-/* TABLE */
-main table {
+table {
   width: 100%;
   border-collapse: collapse;
   margin-top: 20px;
-  table-layout: auto;
-  overflow: hidden;
-  border-radius: 10px;
 }
 
 th,
 td {
-  border: 1px solid rgba(255,255,255,0.06);
+  border: 1px solid var(--border);
   padding: 14px 18px;
   text-align: center;
-  word-wrap: break-word;
-}
-
-td {
-  background: rgba(255,255,255,0.01);
-}
-
-tr:hover td {
-  background: rgba(0,194,255,0.04);
 }
 
 #invoiceTable th,
 #equipoTable th {
-  background: #102534;
-  color: #dff6ff;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+  background: var(--table-header);
+  color: white;
 }
 
-/* BUTTONS */
+tr:nth-child(even) {
+  background: rgba(255,255,255,0.02);
+}
+
+input,
+select {
+  background: var(--input-bg);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px;
+}
+
+select {
+  background: #0b1220;
+  color: #f1f5f9;
+}
+
+select option {
+  background: #0b1220;
+  color: #f1f5f9;
+}
+
 button {
-  background: linear-gradient(135deg, #00c2ff, #0077ff);
+  background: var(--accent);
   color: white;
   border: none;
-  padding: 9px 14px;
-  border-radius: 7px;
+  padding: 10px 14px;
+  border-radius: 8px;
   cursor: pointer;
-  transition: all 0.25s ease;
-  box-shadow: 0 0 10px rgba(0, 194, 255, 0.25);
-  font-weight: 500;
+  transition: 0.2s;
+  font-weight: 600;
 }
 
 button:hover {
-  opacity: 1;
   transform: translateY(-1px);
-  box-shadow: 0 0 16px rgba(0, 194, 255, 0.4);
+  opacity: 0.95;
 }
 
 button.btn-danger {
-  background: linear-gradient(135deg, #ff4d6d, #c9184a);
-  box-shadow: 0 0 12px rgba(255,77,109,0.3);
+  background: #ef4444;
 }
 
-button.btn-danger:hover {
-  box-shadow: 0 0 18px rgba(255,77,109,0.5);
-}
-
-/* THEME BUTTON */
 #themeToggle {
-  background: none;
+  background: transparent;
   color: var(--text);
-  font-size: 20px;
-  box-shadow: none;
+  font-size: 22px;
 }
 
-/* SUMMARY */
 .summary {
-  margin-top: 15px;
+  margin-top: 20px;
   text-align: right;
-  color: #9fc3d9;
+  line-height: 1.8;
 }
 
-/* ACTION BUTTONS */
 .actions {
   margin-top: 20px;
   display: flex;
   justify-content: flex-end;
   gap: 10px;
   flex-wrap: wrap;
-}
-
-/* VERSION HISTORY */
-.version-history-bar {
-  margin-top: 14px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-}
-
-.version-history-bar label {
-  font-size: 0.9em;
-  color: var(--text);
-}
-
-.version-history-bar select {
-  padding: 8px 10px;
-  border-radius: 6px;
-  border: 1px solid rgba(0, 194, 255, 0.15);
-  background: #09131d;
-  color: #d9e7f2;
-  font-size: 0.9em;
-  min-width: 280px;
-}
-
-/* STORAGE BAR */
-#storageBar {
-  margin-top: 14px;
-  height: 8px;
-  background: #0f1b27;
-  border-radius: 4px;
-  overflow: hidden;
-}
-
-#storageBarFill {
-  height: 100%;
-  width: 0%;
-  background: linear-gradient(90deg, #00c2ff, #00ffcc);
-  border-radius: 4px;
-  transition: width 0.4s ease, background 0.4s ease;
-}
-
-#storageLabel {
-  margin-top: 5px;
-  font-size: 0.78em;
-  color: #7f9bb0;
-  text-align: right;
-}
-
-/* EQUIPO TABLE */
-#equipoTable {
-  margin-top: 8px;
-}
-
-/* CLIENT MODAL */
-#clientModal {
-  display: none;
-  pointer-events: none;
-}
-
-#clientModalBox {
-  background: #0b1620;
-  border: 1px solid rgba(0,194,255,0.12);
-  border-radius: 12px;
-  box-shadow: 0 0 30px rgba(0,194,255,0.08);
-}
-
-#clientModalBox h2 {
-  font-size: 1.3em;
-  border-bottom: 2px solid var(--accent);
-  padding-bottom: 8px;
-  color: #eaf6ff;
-}
-
-#clientList div {
-  transition: background 0.15s;
-  padding: 8px;
-  border-radius: 6px;
-}
-
-#clientList div:hover {
-  background: rgba(0,194,255,0.06);
-}
-
-/* INPUTS */
-input[type="text"],
-input[type="number"],
-input[type="date"] {
-  padding: 8px;
-  border: 1px solid rgba(0, 194, 255, 0.15);
-  border-radius: 6px;
-  background: #09131d;
-  color: #d9e7f2;
-  outline: none;
-  transition: border 0.2s ease, box-shadow 0.2s ease;
-}
-
-input[type="text"]:focus,
-input[type="number"]:focus,
-input[type="date"]:focus {
-  border-color: #00c2ff;
-  box-shadow: 0 0 8px rgba(0,194,255,0.25);
-}
-
-/* EDIT ICONS */
-.editHoras,
-.editTotal {
-  background: none;
-  border: none;
-  color: #7ea3bb;
-  font-size: 12px;
-  cursor: pointer;
-  padding: 0;
-  margin-left: 3px;
-  vertical-align: middle;
-  opacity: 0.7;
-  transition: all 0.2s ease;
-  box-shadow: none;
-}
-
-.editHoras:hover,
-.editTotal:hover {
-  opacity: 1;
-  color: #00c2ff;
 }
