@@ -179,12 +179,14 @@ button.btn-danger {
 }
 
 /* Equipo alquilado table */
-#equipoTable {
+#equipoTable,
+#compradoTable {
   margin-top: 8px;
 }
 
 #invoiceTable th,
-#equipoTable th {
+#equipoTable th,
+#compradoTable th {
   background: linear-gradient(180deg, var(--th-grad-top) 0%, var(--th-grad-bot) 100%);
   color: #cdd9df;
 }

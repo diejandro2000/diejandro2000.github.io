@@ -3,6 +3,7 @@ document.addEventListener("DOMContentLoaded", () => {
   loadInvoice();
   document.getElementById("addItem").addEventListener("click", addItem);
   document.getElementById("addEquipo").addEventListener("click", () => addEquipoItem());
+  document.getElementById("addComprado").addEventListener("click", () => addCompradoItem());
   document.getElementById("generatePDF").addEventListener("click", generatePDF);
 
   // Client manager
@@ -295,7 +296,28 @@ function addEquipoItem(item = {}) {
   updateTotals();
 }
 
+// ─────────────────────────────────────────────
+//  EQUIPO COMPRADO
+// ─────────────────────────────────────────────
 
+function addCompradoItem(item = {}) {
+  const tbody = document.getElementById("compradoItems");
+  const row = document.createElement("tr");
+  row.innerHTML = `
+    <td><input type="text" class="compradoDesc" placeholder="Descripción del material" value="${item.desc || ""}" style="width:100%; box-sizing:border-box;"></td>
+    <td style="width:120px;"><input type="number" class="compradoPrecio" placeholder="0.00" value="${item.precio || ""}" step="0.01" min="0" style="width:90px;"></td>
+    <td style="width:30px;"><button class="removeComprado">❌</button></td>
+  `;
+  tbody.appendChild(row);
+  row.querySelector(".removeComprado").addEventListener("click", () => {
+    row.remove();
+    updateTotals();
+  });
+  row.querySelectorAll("input").forEach(el => {
+    el.addEventListener("input", updateTotals);
+  });
+  updateTotals();
+}
 
 function getStorageUsage() {
   let total = 0;
@@ -364,12 +386,21 @@ function getInvoiceSnapshot() {
     });
   });
 
+  const compradoItems = [];
+  document.querySelectorAll("#compradoItems tr").forEach(row => {
+    compradoItems.push({
+      desc: row.querySelector(".compradoDesc")?.value || "",
+      precio: row.querySelector(".compradoPrecio")?.value || ""
+    });
+  });
+
   return {
     clientId: document.getElementById("clientSelect").value,
     invoiceNumber: document.getElementById("invoiceNumber").value,
     invoiceDate: displayToIso(document.getElementById("invoiceDate").value),
     items,
-    equipoItems
+    equipoItems,
+    compradoItems
   };
 }
 
@@ -426,8 +457,10 @@ function restoreVersion() {
   else invDateEl.value = dispDate;
   document.getElementById("invoiceItems").innerHTML = "";
   document.getElementById("equipoItems").innerHTML = "";
+  document.getElementById("compradoItems").innerHTML = "";
   (snapshot.items || []).forEach(item => addItem(item));
   (snapshot.equipoItems || []).forEach(item => addEquipoItem(item));
+  (snapshot.compradoItems || []).forEach(item => addCompradoItem(item));
   updateTotals();
   alert(`↩️ Versión restaurada: ${versions[index].timestamp}`);
 }
@@ -645,12 +678,18 @@ function updateTotals() {
     equipoSubtotal += parseFloat(row.querySelector(".equipoPrecio")?.value) || 0;
   });
 
-  const grandTotal = subtotal + ivaAmount - irpfAmount + equipoSubtotal;
+  let compradoSubtotal = 0;
+  document.querySelectorAll("#compradoItems tr").forEach(row => {
+    compradoSubtotal += parseFloat(row.querySelector(".compradoPrecio")?.value) || 0;
+  });
+
+  const grandTotal = subtotal + ivaAmount - irpfAmount + equipoSubtotal + compradoSubtotal;
 
   document.getElementById("subtotal").textContent = subtotal.toFixed(2);
   document.getElementById("ivaAmount").textContent = ivaAmount.toFixed(2);
   document.getElementById("irpfAmount").textContent = applyIrpf ? irpfAmount.toFixed(2) : "—";
   document.getElementById("equipoTotal").textContent = equipoSubtotal.toFixed(2);
+  document.getElementById("compradoTotal").textContent = compradoSubtotal.toFixed(2);
   document.getElementById("grandTotal").textContent = grandTotal.toFixed(2);
 }
 
@@ -830,9 +869,39 @@ function generatePDF() {
       equipoTableEndY += 8;
     }
 
+    // Collect equipo comprado rows
+    const compradoRows = [];
+    let compradoSubtotal = 0;
+    document.querySelectorAll("#compradoItems tr").forEach((row) => {
+      const desc = row.querySelector(".compradoDesc")?.value || "";
+      const precio = parseFloat(row.querySelector(".compradoPrecio")?.value) || 0;
+      if (desc || precio) {
+        compradoRows.push([desc, precio.toFixed(2) + " €"]);
+        compradoSubtotal += precio;
+      }
+    });
+
+    // Add equipo comprado table if any rows exist
+    if (compradoRows.length > 0) {
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(11);
+      doc.text("Equipo comprado (exento de IVA)", 14, equipoTableEndY);
+      doc.autoTable({
+        head: [["Material / Descripción", "Precio (€)"]],
+        body: compradoRows,
+        startY: equipoTableEndY + 4,
+        theme: "striped",
+        headStyles: { fillColor: [52, 73, 94], textColor: 255 },
+        styles: { fontSize: 8, cellPadding: 2 },
+        tableWidth: "auto",
+        columnStyles: { 1: { halign: "right" } },
+      });
+      equipoTableEndY = doc.lastAutoTable.finalY + 10;
+    }
+
     finalY = equipoTableEndY;
     const pageHeight = doc.internal.pageSize.getHeight();
-    if (finalY + 40 > pageHeight - 20) {
+    if (finalY + 46 > pageHeight - 20) {
       doc.addPage();
       finalY = 20;
     }
@@ -840,7 +909,7 @@ function generatePDF() {
     const applyIrpf = document.getElementById("irpfToggle").checked === true;
     const ivaAmount = subtotal * 0.21;
     const irpfAmount = applyIrpf ? subtotal * 0.15 : 0;
-    const grandTotal = subtotal + ivaAmount - irpfAmount + equipoSubtotal;
+    const grandTotal = subtotal + ivaAmount - irpfAmount + equipoSubtotal + compradoSubtotal;
 
     doc.setFont("helvetica", "normal");
     doc.setFontSize(11);
@@ -852,7 +921,10 @@ function generatePDF() {
     if (equipoSubtotal > 0) {
       doc.text(`Equipo alquilado (exento IVA): ${equipoSubtotal.toFixed(2)} €`, 130, finalY + (applyIrpf ? 18 : 12));
     }
-    const totalLineY = finalY + (applyIrpf ? 24 : 18) + (equipoSubtotal > 0 ? 6 : 0);
+    if (compradoSubtotal > 0) {
+      doc.text(`Equipo comprado (exento IVA): ${compradoSubtotal.toFixed(2)} €`, 130, finalY + (applyIrpf ? 18 : 12) + (equipoSubtotal > 0 ? 6 : 0));
+    }
+    const totalLineY = finalY + (applyIrpf ? 24 : 18) + (equipoSubtotal > 0 ? 6 : 0) + (compradoSubtotal > 0 ? 6 : 0);
     doc.setFont("helvetica", "bold");
     doc.text(`TOTAL: ${grandTotal.toFixed(2)} €`, 130, totalLineY);
 
@@ -877,8 +949,10 @@ function loadInvoice() {
 
   document.getElementById("invoiceItems").innerHTML = "";
   document.getElementById("equipoItems").innerHTML = "";
+  document.getElementById("compradoItems").innerHTML = "";
   (saved.items || []).forEach(item => addItem(item));
   (saved.equipoItems || []).forEach(item => addEquipoItem(item));
+  (saved.compradoItems || []).forEach(item => addCompradoItem(item));
   updateTotals();
 }
 
@@ -919,7 +993,9 @@ document.addEventListener("input", function(e) {
     e.target.classList.contains("inicio") ||
     e.target.classList.contains("final") ||
     e.target.classList.contains("equipoPrecio") ||
-    e.target.classList.contains("equipoDesc")
+    e.target.classList.contains("equipoDesc") ||
+    e.target.classList.contains("compradoPrecio") ||
+    e.target.classList.contains("compradoDesc")
   ) {
     updateTotals();
   }
